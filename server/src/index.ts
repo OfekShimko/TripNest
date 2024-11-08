@@ -2,7 +2,6 @@
 // import express from 'express';
 // import './database';
 import express, { Request, Response, RequestHandler  } from 'express';
-import dotenv from 'dotenv';
 import pool from './database';
 import bcrypt from 'bcryptjs';
 import mysql from 'mysql2';
