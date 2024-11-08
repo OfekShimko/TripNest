@@ -1,13 +1,23 @@
 import mysql from 'mysql2';
+import dotenv from 'dotenv';
+import path from 'path';
 
+
+// Load environment variables from .env file
+// Specify the path to the .env file inside the 'src' folder
+dotenv.config({ path: path.resolve(__dirname, '../src/trip.env') });
+
+// Debugging: Check if the environment variables are loaded
+console.log('Database user:', process.env.DB_USER);
+console.log('Database password length:', process.env.DB_PASSWORD?.length);
+console.log('Database password:', process.env.DB_PASSWORD);
 const pool  = mysql.createPool({
-  host: 'localhost',
-  user: 'root',
-  password: 'q1!w2@e3#r4$t5%',
-  database: 'trip_nest',
-  port: 3306,                   
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_DATABASE,
+  port: Number(process.env.DB_PORT),                 
 });
-
 
 // Test the connection
 pool.getConnection((err, connection) => {
