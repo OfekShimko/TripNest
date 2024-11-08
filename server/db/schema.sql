@@ -1,0 +1,18 @@
+CREATE DATABASE IF NOT EXISTS trip_nest;
+
+USE trip_nest;
+
+CREATE TABLE IF NOT EXISTS trips (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    destination VARCHAR(255),
+    date DATE,
+    description TEXT
+);
+
+
+CREATE TABLE IF NOT EXISTS users (
+    user_id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(255) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    email VARCHAR(255) NOT NULL UNIQUE
+);
