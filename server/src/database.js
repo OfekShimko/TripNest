@@ -4,12 +4,16 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const mysql2_1 = __importDefault(require("mysql2"));
+const dotenv_1 = __importDefault(require("dotenv"));
+const path_1 = __importDefault(require("path"));
+// Specify the path to the .env file inside the 'src' folder
+dotenv_1.default.config({ path: path_1.default.resolve(__dirname, '../src/trip.env') });
 const pool = mysql2_1.default.createPool({
-    host: 'localhost',
-    user: 'root',
-    password: 'q1!w2@e3#r4$t5%',
-    database: 'trip_nest',
-    port: 3306,
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME,
+    port: Number(process.env.DB_PORT),
 });
 // Test the connection
 pool.getConnection((err, connection) => {
