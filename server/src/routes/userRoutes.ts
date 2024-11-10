@@ -5,7 +5,6 @@ import bcrypt from 'bcryptjs';
 
 export const router = express.Router();
 
-// Example of a GET route to retrieve all trips
 router.get('/', (req, res) => {
     pool.query('SELECT * FROM users', (err, results) => {
       if (err) {
@@ -17,7 +16,7 @@ router.get('/', (req, res) => {
     });
   });
 
-    // USER AUTHENTICATION
+// USER AUTHENTICATION
 // Register Route Handler
 const registerHandler: RequestHandler = async (req: Request, res: Response): Promise<void> => {
     const { username, password } = req.body;
