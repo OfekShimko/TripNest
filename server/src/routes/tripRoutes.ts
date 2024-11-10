@@ -1,4 +1,4 @@
-import express, { Request, Response, RequestHandler  } from 'express';
+import express, { Request, Response  } from 'express';
 import pool from '../database';
 
 export const router = express.Router();

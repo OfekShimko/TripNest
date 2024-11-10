@@ -1,4 +1,4 @@
-import express, { Request, Response, RequestHandler  } from 'express';
+import express from 'express';
 import { router as tripRoutes } from './tripRoutes';
 import { router as userRoutes } from './userRoutes';
 
