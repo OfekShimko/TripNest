@@ -11,6 +11,16 @@ export class User {
   @Column()
   password!: string;
 
+  // Lifecycle hook to hash the password before saving
+  @BeforeInsert()
+  @BeforeUpdate()
+  async hashPassword(): Promise<void> {
+    if (this.password) {
+      const saltRounds = 10; // Number of salt rounds
+      this.password = await bcrypt.hash(this.password, saltRounds);
+    }
+  }
+
   @Column()
   email!: string;
 }
