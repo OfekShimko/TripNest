@@ -24,6 +24,8 @@
     "express": "^4.21.1",
     "jsonwebtoken": "^9.0.2",
     "mysql2": "^3.11.4",
-    "tripnest-backend": "file:"
+    "reflect-metadata": "^0.2.2",
+    "tripnest-backend": "file:",
+    "typeorm": "^0.3.20"
   }
 }

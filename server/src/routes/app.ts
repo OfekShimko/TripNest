@@ -1,13 +1,22 @@
 import express from 'express';
 import { router as tripRoutes } from './tripRoutes';
 import { router as userRoutes } from './userRoutes';
-import { router as opentripmapRoutes } from './opentripmapRoutes'; // Correct path to your opentripmapRoutes file
-
+import { router as opentripmapRoutes } from './opentripmapRoutes'; 
+import { AppDataSource } from '../database'; // Import DataSource
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
+
+// Initialize TypeORM connection
+AppDataSource.initialize()
+  .then(() => {
+    console.log('DataSource has been initialized!');
+  })
+  .catch((err) => {
+    console.error('Error during DataSource initialization', err);
+  });
 
 // Use the routes
 app.use('/api/v1/trips', tripRoutes);
@@ -18,4 +27,3 @@ app.use('/api/v1/activities', opentripmapRoutes);
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });
- 

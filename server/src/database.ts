@@ -1,40 +1,36 @@
-import mysql from 'mysql2';
+import 'reflect-metadata';
+import { DataSource } from 'typeorm';
+import { User } from './entities/User'; // You will create this file in the next steps
+import { Trip } from './entities/Trip'; // Example: Create a Trip entity
 import dotenv from 'dotenv';
 import path from 'path';
 
-// Specify the path to the .env file inside the 'src' folder
-dotenv.config({ path: path.resolve(__dirname, '../src/trip.env') });
 
-const pool  = mysql.createPool({
+dotenv.config({ path: path.resolve(__dirname, '../src/trip.env') });
+console.log(process.env.DB_USERNAME);  // This should output your MySQL username
+console.log(process.env.DB_PASSWORD);  // This should output your MySQL password
+console.log(process.env.DB_NAME);      
+
+// Initialize the TypeORM DataSource
+export const AppDataSource = new DataSource({
+  type: 'mysql',
   host: process.env.DB_HOST,
-  user: process.env.DB_USER,
+  port: Number(process.env.DB_PORT),
+  username: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
-  port: Number(process.env.DB_PORT),                 
+  synchronize: false, // automatically synchronize database schema (for development)
+  logging: true,
+  entities: [User, Trip], // Add the User entity (and others like Trip, etc.)
+  migrations: [],
+  subscribers: [],
 });
 
-// Test the connection
-pool.getConnection((err, connection) => {
-    if (err) {
-      // If there is an error, log it
-      console.error('Error connecting to the database:', err.message);
-      return;
-    }
-  
-    // If successful, log the success message
-    console.log('Successfully connected to the database!');
-  
-    // Run a simple query to verify the connection
-    connection.query('SELECT 1 + 1 AS solution', (queryErr, results) => {
-      if (queryErr) {
-        console.error('Error running test query:', queryErr.message);
-      } else {
-        console.log('Test query result:', results);
-      }
-  
-      // Release the connection back to the pool after the query
-      connection.release();
-    });
+// Initialize the connection
+AppDataSource.initialize()
+  .then(() => {
+    console.log('Data Source has been initialized!');
+  })
+  .catch((err) => {
+    console.error('Error during Data Source initialization', err);
   });
-  
-  export default pool;
