@@ -4,6 +4,7 @@ import { User } from './../entities/User';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 
+
 const JWT_SECRET = process.env.JWT_SECRET as string;
 
 if (!JWT_SECRET) {
@@ -11,6 +12,8 @@ if (!JWT_SECRET) {
   process.exit(1);
 }
 
+
+const JWT_SECRET = process.env.JWT_SECRET as string; // TypeScript type assertion to ensure it's a string
 export const router = express.Router();
 
 // Get all users
@@ -28,6 +31,7 @@ router.get('/', async (req: Request, res: Response) => {
 
 // Register Route Handler
 const registerHandler: RequestHandler = async (req: Request, res: Response): Promise<void> => {
+
   const { username, email, password } = req.body;
 
   if (!username || !email || !password) {
@@ -82,6 +86,7 @@ const loginHandler: RequestHandler = async (req: Request, res: Response): Promis
     if (!passwordMatch) {
       res.status(401).json({ message: 'Invalid username or password' });
       return;
+
     }
 
     const token = jwt.sign(
@@ -97,16 +102,19 @@ const loginHandler: RequestHandler = async (req: Request, res: Response): Promis
   }
 };
 
+
 router.post('/login', loginHandler);
 
 // Reset Password Route Handler
 const resetPasswordHandler: RequestHandler = async (req: Request, res: Response): Promise<void> => {
   const { email, newPassword, confirmPassword } = req.body;
 
+
   if (!email || !newPassword || !confirmPassword) {
     res.status(400).json({ message: 'Email, new password, and confirmation password are required' });
     return;
   }
+
 
   if (newPassword !== confirmPassword) {
     res.status(400).json({ message: 'Passwords do not match' });
@@ -118,9 +126,11 @@ const resetPasswordHandler: RequestHandler = async (req: Request, res: Response)
     const user = await userRepository.findOneBy({ email });
 
     if (!user) {
+
       res.status(400).json({ message: 'No user found with that email' });
       return;
     }
+
 
     const hashedPassword = await bcrypt.hash(newPassword, 10);
     await userRepository.update(user.user_id, { password: hashedPassword });
@@ -128,8 +138,11 @@ const resetPasswordHandler: RequestHandler = async (req: Request, res: Response)
     res.status(200).json({ message: 'Password updated successfully' });
   } catch (err) {
     console.error('Error in resetPasswordHandler:', err);
+
     res.status(500).json({ message: 'Database or server error' });
   }
 };
 
+
 router.post('/resetPassword', resetPasswordHandler);
+
