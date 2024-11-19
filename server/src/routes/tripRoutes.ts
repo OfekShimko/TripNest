@@ -57,6 +57,8 @@ router.get('/', (req, res) => {
 });
 
 
+
+
 // Example of a GET route for searching trips based on criteria
 router.get('/search', (req: Request, res: Response) => {
   const { destination, date, description } = req.query;

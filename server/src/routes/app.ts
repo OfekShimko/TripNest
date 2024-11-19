@@ -10,9 +10,9 @@ const PORT = process.env.PORT || 3000;
 app.use(express.json());
 
 // Use the routes
-app.use('/trips', tripRoutes);
-app.use('/users', userRoutes);
-app.use('/activities', opentripmapRoutes);
+app.use('/api/v1/trips', tripRoutes);
+app.use('/api/v1/users', userRoutes);
+app.use('/api/v1/activities', opentripmapRoutes);
 
 // Start the server
 app.listen(PORT, () => {
