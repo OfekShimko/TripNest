@@ -31,3 +31,6 @@ app.use('/api/v1/activities', opentripmapRoutes);
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });
+
+// Export app as default
+export default app;
