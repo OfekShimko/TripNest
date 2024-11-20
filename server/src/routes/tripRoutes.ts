@@ -25,6 +25,7 @@ router.get('/', async (req: Request, res: Response) => {
   }
 });
 
+
 // GET route to retrieve a specific trip by ID
 router.get('/api/v1/trips/:id', asyncHandler(async (req: Request, res: Response) => {
   const { id } = req.params;
@@ -106,9 +107,6 @@ router.delete('/:id', asyncHandler(async (req: Request, res: Response) => {
   await tripRepository.remove(trip);
   res.status(200).json({ message: 'Trip deleted successfully' });
 }));
-
-
-
 
 
 // GET route for searching trips based on criteria

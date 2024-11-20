@@ -1,4 +1,3 @@
-
 import { Entity, PrimaryGeneratedColumn, Column ,
   BeforeInsert,
   BeforeUpdate,} from 'typeorm';
@@ -14,6 +13,9 @@ export class User {
   username!: string;
 
   @Column({ unique: true })
+  email!: string;
+  
+  @Column()
   email!: string;
   
   @Column()
