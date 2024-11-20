@@ -26,6 +26,10 @@ router.get('/', async (req: Request, res: Response) => {
 });
 
 
+  const savedTrip = await tripRepository.save(newTrip);
+  res.status(200).json({ message: 'Trip added successfully', trip: savedTrip });
+}));
+
 
 // GET route to retrieve a specific trip by ID
 router.get('/api/v1/trips/:id', asyncHandler(async (req: Request, res: Response) => {
@@ -89,6 +93,7 @@ router.put(
     Object.assign(trip, updates);
     const updatedTrip = await tripRepository.save(trip);
 
+
     res.status(200).json(updatedTrip);
   })
 );
@@ -121,6 +126,7 @@ router.get('/search', asyncHandler(async (req: Request, res: Response) => {
   if (destination) whereConditions.destination = `%${destination}%`;
   if (date) whereConditions.date = date;
   if (description) whereConditions.description = `%${description}%`;
+
 
   const trips = await tripRepository.find({
     where: whereConditions,

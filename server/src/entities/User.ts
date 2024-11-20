@@ -1,7 +1,9 @@
+
 import { Entity, PrimaryGeneratedColumn, Column ,
   BeforeInsert,
   BeforeUpdate,} from 'typeorm';
   import bcrypt from 'bcryptjs';
+
 
 @Entity({ name: 'users' })
 export class User {
@@ -26,6 +28,4 @@ export class User {
       this.password = await bcrypt.hash(this.password, saltRounds);
     }
   }
-
- 
 }

@@ -5,7 +5,6 @@ import { Trip } from './entities/Trip'; // Example: Create a Trip entity
 import dotenv from 'dotenv';
 import path from 'path';
 
-
 dotenv.config({ path: path.resolve(__dirname, '../src/trip.env') });     
 
 // Initialize the TypeORM DataSource
