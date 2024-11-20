@@ -5,15 +5,15 @@ import { Entity, PrimaryGeneratedColumn, Column ,
   import bcrypt from 'bcryptjs';
 
 
-@Entity({ name: 'users' })
+@Entity({ name: 'User' })
 export class User {
-  @PrimaryGeneratedColumn({ name: 'user_id' })
-  user_id!: number;
+  @PrimaryGeneratedColumn('uuid')
+  id!: string;
 
   @Column()
   username!: string;
 
-  @Column()
+  @Column({ unique: true })
   email!: string;
   
   @Column()
@@ -23,8 +23,8 @@ export class User {
   @BeforeInsert()
   @BeforeUpdate()
   async hashPassword(): Promise<void> {
-    if (this.password) {
-      const saltRounds = 10; // Number of salt rounds
+    if (this.password && !this.password.startsWith('$2a$')) { // Ensure it's not already hashed
+      const saltRounds = 10;
       this.password = await bcrypt.hash(this.password, saltRounds);
     }
   }
