@@ -1,97 +1,140 @@
-import express, { Request, Response  } from 'express';
-import pool from '../database';
+import express, { Request, Response, NextFunction } from 'express';
+import { Trip } from '../entities/Trip'; // Import Trip entity
+import { AppDataSource } from '../database'; // Import DataSource
 
 export const router = express.Router();
+const tripRepository = AppDataSource.getRepository(Trip);
+
+// Helper function to wrap async route handlers
+const asyncHandler = (fn: Function) => {
+  return (req: Request, res: Response, next: NextFunction) => {
+    Promise.resolve(fn(req, res, next)).catch(next);
+  };
+};
 
 
-// Example of a POST route to insert data into the database
-router.post('/add-trip', (req, res) => {
-  const { destination, date,  description} = req.body;
-  
-  const query = 'INSERT INTO trips (destination, date, description) VALUES (?, ?, ?)';
-  pool.query(query, [destination, date, description], (err, results) => {
-    if (err) {
-      console.error('Error inserting trip:', err);
-      return res.status(500).send('Failed to insert trip');
+// GET all trips
+router.get('/', async (req: Request, res: Response) => {
+  try {
+    // Use TypeORM to fetch all trips from the trips table
+    const trips = await AppDataSource.getRepository(Trip).find(); // Finds all trips
+    res.status(200).json(trips);
+  } catch (err) {
+    console.error('Error fetching trips:', err);
+    res.status(500).send('Failed to fetch trips');
+  }
+});
+
+
+  const savedTrip = await tripRepository.save(newTrip);
+  res.status(200).json({ message: 'Trip added successfully', trip: savedTrip });
+}));
+
+
+// GET route to retrieve a specific trip by ID
+router.get('/api/v1/trips/:id', asyncHandler(async (req: Request, res: Response) => {
+  const { id } = req.params;
+
+  const trip = await tripRepository.findOneBy({ id: parseInt(id) });
+
+  if (!trip) {
+    return res.status(404).json({ message: 'Trip not found' });
+  }
+
+  res.status(200).json(trip);
+}));
+
+
+// POST route to insert a new trip
+router.post(
+  '/',
+  asyncHandler(async (req: Request, res: Response) => {
+    const { destination, date, description } = req.body;
+
+    // Ensure request body validation is correct
+    if (!destination || !date || !description) {
+      return res.status(400).json({ message: 'Destination, date, and description are required.' });
     }
 
-    res.status(200).send('Trip added successfully');
-  });
-});
+    // Create and save the trip
+    const newTrip = tripRepository.create({
+      destination,
+      date,
+      description,
+    });
+    const savedTrip = await tripRepository.save(newTrip);
+
+    // Respond with the full trip object
+    res.status(201).json(savedTrip);
+  })
+);
+
+
+// PUT route to make changes on a specific trip by an id.
+router.put(
+  '/:id',
+  asyncHandler(async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const updates: Partial<Omit<Trip, 'id' | 'users' | 'activities'>> = req.body;
+
+    // Convert id to a number
+    const tripId = parseInt(id, 10);
+    if (isNaN(tripId)) {
+      return res.status(400).json({ message: 'Invalid trip ID' });
+    }
+
+    // Find the trip by ID
+    const trip = await tripRepository.findOne({ where: { id: tripId } });
+    if (!trip) {
+      return res.status(404).json({ message: 'Trip not found' });
+    }
+
+    // Merge updates into the existing trip entity
+    Object.assign(trip, updates);
+    const updatedTrip = await tripRepository.save(trip);
+
+
+    res.status(200).json(updatedTrip);
+  })
+);
 
 
 // DELETE route to remove a specific trip by ID
-router.delete('/delete-trip-:id', (req: Request, res: Response) => {
+router.delete('/:id', asyncHandler(async (req: Request, res: Response) => {
   const { id } = req.params;
 
-  const query = 'DELETE FROM trips WHERE id = ?';
-  pool.query(query, [id], (err, results) => {
-    if (err) {
-      console.error('Error deleting trip:', err);
-      return res.status(500).json({ message: 'Error deleting trip' });
-    }
+  const trip = await tripRepository.findOneBy({ id: parseInt(id) });
 
-    // Cast the result to the correct type and check affectedRows
-    const result = results as { affectedRows: number };
-    
-    // If affectedRows is greater than 0, the trip was deleted
-    if (result.affectedRows > 0) {
-      res.status(200).json({ message: 'Trip deleted successfully' });
-    } else {
-      res.status(404).json({ message: 'Trip not found' });
-    }
-  });
-});
+  if (!trip) {
+    return res.status(404).json({ message: 'Trip not found' });
+  }
+
+  await tripRepository.remove(trip);
+  res.status(200).json({ message: 'Trip deleted successfully' });
+}));
 
 
-// Example of a GET route to retrieve all trips
-router.get('/', (req, res) => {
-  pool.query('SELECT * FROM trips', (err, results) => {
-    if (err) {
-      console.error('Error fetching trips:', err);
-      return res.status(500).send('Failed to fetch trips');
-    }
-
-    res.status(200).json(results);
-  });
-});
 
 
-// Example of a GET route for searching trips based on criteria
-router.get('/search', (req: Request, res: Response) => {
+
+// GET route for searching trips based on criteria
+router.get('/search', asyncHandler(async (req: Request, res: Response) => {
   const { destination, date, description } = req.query;
 
-  let query = 'SELECT * FROM trips WHERE 1=1';
-  const params: any[] = [];
+  const whereConditions: any = {};
 
-  if (destination) {
-    query += ' AND destination LIKE ?';
-    params.push(`%${destination}%`);
-  }
-  if (date) {
-    query += ' AND date = ?';
-    params.push(date);
-  }
-  if (description) {
-    query += ' AND description LIKE ?';
-    params.push(`%${description}%`);
-  }
+  if (destination) whereConditions.destination = `%${destination}%`;
+  if (date) whereConditions.date = date;
+  if (description) whereConditions.description = `%${description}%`;
 
-  pool.query(query, params, (err, results) => {
-    if (err) {
-      console.error('Error searching trips:', err);
-      return res.status(500).send('Failed to search trips');
-    }
 
-    // Check if the result is an array (this will happen for SELECT queries)
-    if (Array.isArray(results) && results.length > 0) {
-      res.status(200).json(results);
-    } else if (Array.isArray(results) && results.length === 0) {
-      res.status(404).json({ message: 'No trips found matching the criteria' });
-    } else {
-      // If the query doesn't return an array, handle it (this should not happen for SELECT)
-      console.error('Unexpected result structure:', results);
-      res.status(500).json({ message: 'Error processing search query' });
-    }
+  const trips = await tripRepository.find({
+    where: whereConditions,
   });
-});
+
+  if (trips.length === 0) {
+    return res.status(404).json({ message: 'No trips found matching the criteria' });
+  }
+
+  res.status(200).json(trips);
+}));
