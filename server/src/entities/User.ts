@@ -1,4 +1,9 @@
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+
+import { Entity, PrimaryGeneratedColumn, Column ,
+  BeforeInsert,
+  BeforeUpdate,} from 'typeorm';
+  import bcrypt from 'bcryptjs';
+
 
 @Entity({ name: 'users' })
 export class User {
@@ -8,6 +13,9 @@ export class User {
   @Column()
   username!: string;
 
+  @Column()
+  email!: string;
+  
   @Column()
   password!: string;
 
@@ -20,7 +28,4 @@ export class User {
       this.password = await bcrypt.hash(this.password, saltRounds);
     }
   }
-
-  @Column()
-  email!: string;
 }

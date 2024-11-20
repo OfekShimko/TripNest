@@ -5,11 +5,7 @@ import { Trip } from './entities/Trip'; // Example: Create a Trip entity
 import dotenv from 'dotenv';
 import path from 'path';
 
-
-dotenv.config({ path: path.resolve(__dirname, '../src/trip.env') });
-console.log(process.env.DB_USERNAME);  // This should output your MySQL username
-console.log(process.env.DB_PASSWORD);  // This should output your MySQL password
-console.log(process.env.DB_NAME);      
+dotenv.config({ path: path.resolve(__dirname, '../src/trip.env') });     
 
 // Initialize the TypeORM DataSource
 export const AppDataSource = new DataSource({
