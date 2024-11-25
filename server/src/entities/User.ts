@@ -16,9 +16,6 @@ export class User {
   email!: string;
   
   @Column()
-  email!: string;
-  
-  @Column()
   password!: string;
 
   // Lifecycle hook to hash the password before saving
