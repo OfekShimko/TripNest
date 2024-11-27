@@ -1,0 +1,65 @@
+{
+  "trips": [
+    {
+      "id": "1",
+      "title": "Bansko Ski Vacation",
+      "type": "Sport",
+      "description": "6 days skiing and having fun in the small cute city Bansko in Bulgaria",
+      "location": "Bansko, Bulgaria",
+      "dates": "01/01/2025-08/01/2025",
+      "activities": [
+        {
+          "id": "1"
+        },
+        {
+          "id": "2"
+        },
+        {
+          "id": "3"
+        }
+      ]
+    },
+    {
+      "id": "2",
+      "title": "Climbing Trip",
+      "type": "Sport",
+      "description": "14 days climbing in Greece with beautiful views and great friends. A good location to get better and gain more skills. It's also a great place for exploring food.",
+      "location": "Greece",
+      "dates": "01/06/2025-15/06/2025",
+      "activities": [
+        {
+          "id": "3"
+        },
+        {
+          "id": "4"
+        }
+      ]
+    }
+  ],
+  "activities": [
+    {
+      "id": "1",
+      "title": "Ski",
+      "location": "Bansko, Bulgaria",
+      "description": "6 days skipass"
+    },
+    {
+      "id": "2",
+      "title": "ApreSki",
+      "location": "DiscoClub, Bansko, Bulgaria",
+      "description": "parting like there is no tommarow with 3 free drinks at entry fee!"
+    },
+    {
+      "id": "3",
+      "title": "EastWall",
+      "location": "Greece",
+      "description": "Grades v1-v7"
+    },
+    {
+      "id": "4",
+      "title": "WestWall",
+      "location": "Greece",
+      "description": "Grades v4-v15"
+    }
+  ]
+}
