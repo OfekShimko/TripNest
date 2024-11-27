@@ -27,7 +27,7 @@ router.get('/', async (req: Request, res: Response) => {
 
 
 // GET route to retrieve a specific trip by ID
-router.get('/api/v1/trips/:id', asyncHandler(async (req: Request, res: Response) => {
+router.get('/:id', asyncHandler(async (req: Request, res: Response) => {
   const { id } = req.params;
 
   const trip = await tripRepository.findOneBy({ id: parseInt(id) });
