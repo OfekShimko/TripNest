@@ -4,12 +4,17 @@ import { router as userRoutes } from './userRoutes';
 
 import { router as opentripmapRoutes } from './opentripmapRoutes'; 
 import { AppDataSource } from '../database'; // Import DataSource
+import cors from 'cors';
+
+
 
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
+
+app.use(cors({ origin: 'http://localhost:8000' }));
 
 // Initialize TypeORM connection
 AppDataSource.initialize()
