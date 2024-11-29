@@ -6,9 +6,6 @@ import { router as opentripmapRoutes } from './opentripmapRoutes';
 import { AppDataSource } from '../database'; // Import DataSource
 import cors from 'cors';
 
-
-
-
 const app = express();
 const PORT = process.env.PORT || 3000;
 

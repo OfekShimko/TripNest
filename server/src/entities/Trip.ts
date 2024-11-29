@@ -1,16 +1,30 @@
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
+import { TripActivities } from './TripActivities';
+import { TripUsers } from './TripUsers';
 
-@Entity()
+@Entity({ name: 'Trip' })
 export class Trip {
-  @PrimaryGeneratedColumn()
-  id!: number;
+  @PrimaryGeneratedColumn('uuid')
+  id!: string;
 
-  @Column()
-  destination!: string;
+  @Column({ length: 255 })
+  title!: string;
 
-  @Column()
-  date!: string;
-
-  @Column()
+  @Column('text')
   description!: string;
+
+  @Column({ length: 255 })
+  location!: string;
+
+  @Column('date')
+  from_date!: Date;
+
+  @Column('date')
+  to_date!: Date;
+
+  @OneToMany(() => TripActivities, (activity) => activity.trip, { cascade: true })
+  activities!: TripActivities[];
+
+  @OneToMany(() => TripUsers, (tripUser) => tripUser.trip)
+  users!: TripUsers[];
 }
