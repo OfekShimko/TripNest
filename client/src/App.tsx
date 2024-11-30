@@ -4,6 +4,8 @@ import {
   createRoutesFromElements,
   RouterProvider,
 } from 'react-router-dom';
+import PrivateRoute from './components/PrivateRoute';
+
 import MainLayout from './layouts/MainLayout.tsx';
 import HomePage from './pages/HomePage.tsx';
 import TripsPage from './pages/TripsPage.tsx';
@@ -15,6 +17,8 @@ import RegisterPage from './pages/RegisterPage.tsx';
 import TripPage from './pages/TripPage.tsx';
 import AddTripPage from "./pages/AddTripPage.tsx"
 import ActivityPage from './pages/ActivityPage.tsx';
+
+
 
 type Activity = {
   id: number;
@@ -91,22 +95,30 @@ const App = () => {
   const router = createBrowserRouter(
     createRoutesFromElements(
       <>
+        {/* Public Routes */}
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<LogInPage />} />
-        <Route path="/register" element={<RegisterPage/>} />
-        <Route path='/' element={<MainLayout />}>
-          <Route path='/home' element={<HomePage />} />
-          <Route path='/trips' element={<TripsPage />} />
-          <Route path='/add-trip' element={<AddTripPage addTripSubmit={addTrip}/>} />
-          <Route path='/trips/:id' element={<TripPage deleteTrip={deleteTrip} />} />
-          <Route path='/activities' element={<ActivitiesPage />} />
-          <Route path='/activities/:id' element={<ActivityPage addActivityToTrip={addActivityToTrip}/>} />
-          <Route path='*' element={<NotFoundPage />} />
+        <Route path="/register" element={<RegisterPage />} />
+  
+        {/* Routes under MainLayout */}
+        <Route path="/" element={<MainLayout />}>
+          {/* Protected Routes */}
+          <Route element={<PrivateRoute />}>
+            <Route path="/home" element={<HomePage />} />
+            <Route path="/trips" element={<TripsPage />} />
+            <Route path="/add-trip" element={<AddTripPage addTripSubmit={addTrip} />} />
+            <Route path="/trips/:id" element={<TripPage deleteTrip={deleteTrip} />} />
+            <Route path="/activities" element={<ActivitiesPage />} />
+            <Route path="/activities/:id" element={<ActivityPage addActivityToTrip={addActivityToTrip} />} />
+          </Route>
+          {/* Fallback Route */}
+          <Route path="*" element={<NotFoundPage />} />
         </Route>
       </>
-
     )
   );
+  
+  
 
   return <RouterProvider router={router} />;
 };
