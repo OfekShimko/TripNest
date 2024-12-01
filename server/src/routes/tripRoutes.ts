@@ -2,6 +2,7 @@ import express, { Request, Response, NextFunction } from 'express';
 import { Trip } from '../entities/Trip'; // Import Trip entity
 import { AppDataSource } from '../database'; // Import DataSource
 import { TripUsers } from '../entities/TripUsers';
+import { TripActivities } from '../entities/TripActivities';
 
 export const router = express.Router();
 const tripRepository = AppDataSource.getRepository(Trip);
@@ -23,19 +24,6 @@ router.get('/', asyncHandler(async (req: Request, res: Response) => {
       console.error('Error fetching trips:', err);
       res.status(500).send('Failed to fetch trips');
     }
-  })
-);
-
-// GET a specific trip by title
-router.get('/:title',asyncHandler(async (req: Request, res: Response) => {
-    const { title } = req.params;
-    const trip = await tripRepository.findOneBy({ title });
-
-    if (!trip) {
-      return res.status(404).json({ message: 'Trip not found' });
-    }
-
-    res.status(200).json(trip);
   })
 );
 
@@ -115,11 +103,12 @@ router.put('/:title', asyncHandler(async (req: Request, res: Response) => {
   })
 );
 
-// DELETE a specific trip by ID
+// DELETE a specific trip by title
 router.delete('/:title', asyncHandler(async (req: Request, res: Response) => {
   const { title } = req.params;
   const { user_email } = req.body;
 
+  // Find the trip by title
   const trip = await tripRepository.findOneBy({ title });
 
   if (!trip) {
@@ -141,20 +130,29 @@ router.delete('/:title', asyncHandler(async (req: Request, res: Response) => {
   await queryRunner.startTransaction();
 
   try {
+    // 1. Delete associated activities
+    const tripActivitiesRepository = AppDataSource.getRepository(TripActivities);
+    await queryRunner.manager.delete(TripActivities, { trip_id: trip.id });
+
+    // 2. Delete the trip users
     await queryRunner.manager.delete(TripUsers, { trip_id: trip.id });
+
+    // 3. Delete the trip itself
     await queryRunner.manager.delete(Trip, { title });
 
+    // Commit the transaction
     await queryRunner.commitTransaction();
-    res.status(200).json({ message: 'Trip deleted successfully' });
+    res.status(200).json({ message: 'Trip and associated activities deleted successfully' });
   } catch (error) {
     await queryRunner.rollbackTransaction();
-    console.error('Error deleting trip:', error);
-    res.status(500).json({ message: 'Error deleting trip' });
+    console.error('Error deleting trip and activities:', error);
+    res.status(500).json({ message: 'Error deleting trip and activities' });
   } finally {
     await queryRunner.release();
   }
 }));
 
+// Search trip by title/location/from_date/to_date
 router.post('/search', asyncHandler(async (req: Request, res: Response) => {
   console.log("Search route hit"); // Check if this logs
   const { title, location, from_date, to_date } = req.query;
@@ -188,4 +186,113 @@ router.post('/search', asyncHandler(async (req: Request, res: Response) => {
   }
 
   res.status(200).json(trips);
+}));
+
+
+// Define a route to add activities to a trip
+router.post('/activities', asyncHandler(async (req: Request, res: Response) => {
+  const { trip_id } = req.body;  // Expect trip_id from the request body
+  const { xid } = req.body;      // Expect a single xid string from the request body
+
+  // Check if xid is provided and is a valid string
+  if (!xid || typeof xid !== 'string') {
+    return res.status(400).json({ message: 'Invalid request, xid must be a string' });
+  }
+
+  const tripActivitiesRepository = AppDataSource.getRepository(TripActivities);
+  
+  // Find the trip by ID
+  const trip = await tripRepository.findOne({ where: { id: trip_id }});
+  if (!trip) {
+    return res.status(404).json({ message: 'Trip not found' });
+  }
+
+  try {
+    // Find existing activities for the trip
+    const existingActivities = await tripActivitiesRepository.find({
+      where: { trip_id }
+    });
+
+    // Collect the existing xids of the activities
+    const existingXids = existingActivities.map(activity => activity.xid);
+
+    // Check if the xid is already in the existing activities
+    if (existingXids.includes(xid)) {
+      return res.status(400).json({ message: 'This xid is already associated with the trip' });
+    }
+
+    // Create a new activity entry
+    const activity = new TripActivities();
+    activity.xid = xid;
+    activity.trip_id = trip_id;
+    activity.trip = trip;
+
+    // Save the new activity
+    await tripActivitiesRepository.save(activity);
+
+    // Return a success message with the added activity
+    res.status(201).json({ message: 'Activity added to trip', activity });
+  } catch (error) {
+    console.error('Error saving activity:', error);
+    res.status(500).json({ message: 'Error saving activity' });
+  }
+}));
+
+// Define a route to get all activities for a specific trip by trip_id
+router.get('/:trip_id/activities', asyncHandler(async (req: Request, res: Response) => {
+  console.log('Fetching activities for trip_id:', req.params.trip_id);
+  const { trip_id } = req.params;
+
+  const tripActivitiesRepository = AppDataSource.getRepository(TripActivities);
+
+  // Find the trip by ID and include its activities
+  const trip = await tripRepository.findOne({where : {id: trip_id}});
+
+  if (!trip) {
+    return res.status(404).json({ message: 'Trip not found' });
+  }
+
+  // Alternatively, fetch activities separately if you didn't load relations
+  const activities = await tripActivitiesRepository.find({
+    where: { trip_id },
+  });
+
+  res.status(200).json({ trip, activities });
+}));
+
+// Define a route to remove activities from a trip by xid
+router.delete('/:trip_id/activities', asyncHandler(async (req: Request, res: Response) => {
+  const { trip_id } = req.body;  // Expect trip_id from the request body
+  const { xid } = req.body;      // Expect xid string to be deleted
+
+  // Check if xid is provided and is a valid string
+  if (!xid || typeof xid !== 'string') {
+    return res.status(400).json({ message: 'Invalid request, xid must be a string' });
+  }
+
+  const tripActivitiesRepository = AppDataSource.getRepository(TripActivities);
+  
+  // Find the trip by ID
+  const trip = await tripRepository.findOne({ where: { id: trip_id }});
+  if (!trip) {
+    return res.status(404).json({ message: 'Trip not found' });
+  }
+
+  try {
+    // Find the activity with the specific xid for this trip
+    const activity = await tripActivitiesRepository.findOne({ where: { trip_id, xid } });
+
+    if (!activity) {
+      return res.status(404).json({ message: 'Activity not found for this trip' });
+    }
+
+    // Remove the activity
+    await tripActivitiesRepository.remove(activity);
+
+    // Return a success message
+    res.status(200).json({ message: 'Activity removed from trip' });
+  } catch (error) {
+    console.error('Error removing activity:', error);
+    res.status(500).json({ message: 'Error removing activity' });
+  }
 }));
