@@ -27,6 +27,23 @@ router.get('/', asyncHandler(async (req: Request, res: Response) => {
   })
 );
 
+// GET trip by trip_id
+router.get('/:id', asyncHandler(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  console.log('Fetching trip for id:', id);
+  try {
+        // Use TypeORM to fetch all trips from the trips table
+      const trip = await tripRepository.findOneBy({ id }); // Finds all trips
+      if (!trip) {
+        return res.status(404).json({ message: 'Trip not found' });
+      }
+  } catch (err) {
+    console.error('Error fetching trip:', err);
+    res.status(500).send('Failed to fetch trip');
+  }
+})
+);
+
 // POST route to create a new trip with permission assignment
 router.post('/', asyncHandler(async (req: Request, res: Response) => {
   const { title, description, location, from_date, to_date, user_email } = req.body;
@@ -35,17 +52,6 @@ router.post('/', asyncHandler(async (req: Request, res: Response) => {
   if (!title || !description || !location || !from_date || !to_date || !user_email) {
     return res.status(400).json({
       message: 'Title, description, location, from_date, to_date, and user_email are required.',
-    });
-  }
-
-  // Check if the trip with the same title already exists
-  const existingTrip = await tripRepository.findOne({
-    where: { title }, // Search for trip with the same title
-  });
-
-  if (existingTrip) {
-    return res.status(400).json({
-      message: 'A trip with this title already exists.',
     });
   }
 
@@ -74,12 +80,12 @@ router.post('/', asyncHandler(async (req: Request, res: Response) => {
 );
 
 
-// PUT route to update a trip by title
-router.put('/:title', asyncHandler(async (req: Request, res: Response) => {
-    const { title } = req.params;
+// PUT route to update a trip by id
+router.put('/:id', asyncHandler(async (req: Request, res: Response) => {
+    const { id } = req.params;
     const { user_email } = req.body; // Assume user_email is passed to verify permissions
 
-    const trip = await tripRepository.findOneBy({ title });
+    const trip = await tripRepository.findOneBy({ id });
     if (!trip) {
       return res.status(404).json({ message: 'Trip not found' });
     }
@@ -87,8 +93,7 @@ router.put('/:title', asyncHandler(async (req: Request, res: Response) => {
     // Check if user is associated with the trip and has the correct permission
     const tripUserRepository = AppDataSource.getRepository(TripUsers);
     const tripUser = await tripUserRepository.findOne({
-      where: { trip_id: trip.id, user_email },
-    });
+      where: { trip_id: id, user_email }});
 
     if (!tripUser || tripUser.permission_level !== 'Manager') {
       return res.status(403).json({ message: 'You do not have permission to edit this trip' });
@@ -103,13 +108,13 @@ router.put('/:title', asyncHandler(async (req: Request, res: Response) => {
   })
 );
 
-// DELETE a specific trip by title
-router.delete('/:title', asyncHandler(async (req: Request, res: Response) => {
-  const { title } = req.params;
+// DELETE a specific trip by trip_id
+router.delete('/:id', asyncHandler(async (req: Request, res: Response) => {
+  const { id } = req.params;
   const { user_email } = req.body;
 
-  // Find the trip by title
-  const trip = await tripRepository.findOneBy({ title });
+  // Find the trip by id
+  const trip = await tripRepository.findOneBy({ id });
 
   if (!trip) {
     return res.status(404).json({ message: 'Trip not found' });
@@ -131,14 +136,13 @@ router.delete('/:title', asyncHandler(async (req: Request, res: Response) => {
 
   try {
     // 1. Delete associated activities
-    const tripActivitiesRepository = AppDataSource.getRepository(TripActivities);
-    await queryRunner.manager.delete(TripActivities, { trip_id: trip.id });
+    await queryRunner.manager.delete(TripActivities, { trip_id: id });
 
     // 2. Delete the trip users
-    await queryRunner.manager.delete(TripUsers, { trip_id: trip.id });
+    await queryRunner.manager.delete(TripUsers, { trip_id: id });
 
     // 3. Delete the trip itself
-    await queryRunner.manager.delete(Trip, { title });
+    await queryRunner.manager.delete(Trip, { id });
 
     // Commit the transaction
     await queryRunner.commitTransaction();
@@ -154,7 +158,6 @@ router.delete('/:title', asyncHandler(async (req: Request, res: Response) => {
 
 // Search trip by title/location/from_date/to_date
 router.post('/search', asyncHandler(async (req: Request, res: Response) => {
-  console.log("Search route hit"); // Check if this logs
   const { title, location, from_date, to_date } = req.query;
   
   console.log({ title, location, from_date, to_date });
@@ -176,9 +179,6 @@ router.post('/search', asyncHandler(async (req: Request, res: Response) => {
     queryBuilder.andWhere('trip.to_date <= :to_date', { to_date });
   }
 
-  // Log the generated query for debugging
-  console.log(queryBuilder.getQuery());
-  
   const trips = await queryBuilder.getMany();
 
   if (trips.length === 0) {
@@ -190,7 +190,7 @@ router.post('/search', asyncHandler(async (req: Request, res: Response) => {
 
 
 // Define a route to add activities to a trip
-router.post('/activities', asyncHandler(async (req: Request, res: Response) => {
+router.post('/:trip_id/add-activity', asyncHandler(async (req: Request, res: Response) => {
   const { trip_id } = req.body;  // Expect trip_id from the request body
   const { xid } = req.body;      // Expect a single xid string from the request body
 
