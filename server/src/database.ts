@@ -1,9 +1,11 @@
 import 'reflect-metadata';
 import { DataSource } from 'typeorm';
-import { User } from './entities/User'; // You will create this file in the next steps
-import { Trip } from './entities/Trip'; // Example: Create a Trip entity
 import dotenv from 'dotenv';
 import path from 'path';
+import { User } from './entities/User'; 
+import { Trip } from './entities/Trip'; 
+import { TripActivities } from './entities/TripActivities';
+import { TripUsers } from './entities/TripUsers';
 
 dotenv.config({ path: path.resolve(__dirname, '../src/trip.env') });     
 
@@ -17,7 +19,7 @@ export const AppDataSource = new DataSource({
   database: process.env.DB_NAME,
   synchronize: false, // automatically synchronize database schema (for development)
   logging: true,
-  entities: [User, Trip], // Add the User entity (and others like Trip, etc.)
+  entities: [User, Trip, TripActivities, TripUsers], // Add the User entity (and others like Trip, etc.)
   migrations: [],
   subscribers: [],
 });

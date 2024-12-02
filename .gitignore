@@ -129,3 +129,6 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+server/db/insert_data.sql
+server/db/schema.sql
+server/db/trip_nest.sql
