@@ -27,22 +27,27 @@ router.get('/', asyncHandler(async (req: Request, res: Response) => {
   })
 );
 
+
 // GET trip by trip_id
 router.get('/:id', asyncHandler(async (req: Request, res: Response) => {
   const { id } = req.params;
   console.log('Fetching trip for id:', id);
   try {
         // Use TypeORM to fetch all trips from the trips table
+      console.log('Fetching trip for id:', id);
       const trip = await tripRepository.findOneBy({ id }); // Finds all trips
+      console.log('Trip fetched:', trip);
       if (!trip) {
         return res.status(404).json({ message: 'Trip not found' });
       }
+      res.status(200).json(trip);
   } catch (err) {
     console.error('Error fetching trip:', err);
     res.status(500).send('Failed to fetch trip');
   }
 })
 );
+
 
 // POST route to create a new trip with permission assignment
 router.post('/', asyncHandler(async (req: Request, res: Response) => {
@@ -238,6 +243,7 @@ router.post('/:trip_id/add-activity', asyncHandler(async (req: Request, res: Res
   }
 }));
 
+
 // Define a route to get all activities for a specific trip by trip_id
 router.get('/:trip_id/activities', asyncHandler(async (req: Request, res: Response) => {
   console.log('Fetching activities for trip_id:', req.params.trip_id);
@@ -259,6 +265,7 @@ router.get('/:trip_id/activities', asyncHandler(async (req: Request, res: Respon
 
   res.status(200).json({ trip, activities });
 }));
+
 
 // Define a route to remove activities from a trip by xid
 router.delete('/:trip_id/activities', asyncHandler(async (req: Request, res: Response) => {
