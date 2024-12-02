@@ -61,9 +61,9 @@ const signupHandler: RequestHandler = async (req: Request, res: Response): Promi
     // Save the user in the database
     await userRepository.save(newUser);
 
-    res.status(201).json({ message: 'User registered successfully' });
+    res.status(201).json({ message: 'User singup successfully' });
   } catch (err) {
-    console.error('Error in registerHandler:', err);
+    console.error('Error in signupHandler:', err);
     res.status(500).json({ message: 'Database or server error' });
   }
 };

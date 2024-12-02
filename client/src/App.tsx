@@ -4,8 +4,8 @@ import {
   createRoutesFromElements,
   RouterProvider,
 } from 'react-router-dom';
-import PrivateRoute from './components/PrivateRoute';
 
+import PrivateRoute from './components/PrivateRoute';
 import MainLayout from './layouts/MainLayout.tsx';
 import HomePage from './pages/HomePage.tsx';
 import TripsPage from './pages/TripsPage.tsx';
@@ -17,7 +17,6 @@ import RegisterPage from './pages/RegisterPage.tsx';
 import TripPage from './pages/TripPage.tsx';
 import AddTripPage from "./pages/AddTripPage.tsx"
 import ActivityPage from './pages/ActivityPage.tsx';
-
 
 
 type Activity = {
@@ -118,7 +117,7 @@ const App = () => {
     )
   );
   
-  
+
 
   return <RouterProvider router={router} />;
 };

@@ -1,14 +1,16 @@
-// Navbar.tsx
 import { NavLink, useNavigate } from 'react-router-dom';
+
 import { PiSuitcase } from "react-icons/pi";
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react';
 import profilePic from '../assets/images/yana.png';
+
 
 const Navbar = () => {
   const linkClass = ({ isActive }: { isActive: boolean }) =>
     isActive
       ? 'bg-black text-white hover:bg-gray-900 hover:text-white rounded-md px-3 py-2'
       : 'text-white hover:bg-gray-900 hover:text-white rounded-md px-3 py-2';
+
 
   const navigate = useNavigate();
 
@@ -18,6 +20,7 @@ const Navbar = () => {
     // Redirect to sign-in page
     navigate('/');
   };
+
 
   return (
     <nav className='bg-cyan-600 border-b border-cyan-700'>
@@ -54,6 +57,7 @@ const Navbar = () => {
                     </MenuButton>
                   </div>
                   <MenuItems
+
                     className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black/5 focus:outline-none"
                   >
                     <MenuItem
