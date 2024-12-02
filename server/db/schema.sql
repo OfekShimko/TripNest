@@ -1,4 +1,4 @@
-CREATE DATABASE IF NOT EXISTS trip_nest;
+-- CREATE DATABASE IF NOT EXISTS trip_nest;
 
 USE trip_nest;
 
@@ -17,19 +17,19 @@ CREATE TABLE IF NOT EXISTS User (
 );
 
 -- Create trigger to automatically set the username to part before '@' in email
-DELIMITER $$
+-- DELIMITER $$
 
-CREATE TRIGGER before_user_insert
-BEFORE INSERT ON User
-FOR EACH ROW
-BEGIN
-    -- Set the username to the part before '@' in the email address
-    IF NEW.username IS NULL THEN
-        SET NEW.username = SUBSTRING_INDEX(NEW.email, '@', 1);
-    END IF;
-END $$
+-- CREATE TRIGGER before_user_insert
+-- BEFORE INSERT ON User
+-- FOR EACH ROW
+-- BEGIN
+--     -- Set the username to the part before '@' in the email address
+--     IF NEW.username IS NULL THEN
+--         SET NEW.username = SUBSTRING_INDEX(NEW.email, '@', 1);
+--     END IF;
+-- END $$
 
-DELIMITER ;
+-- DELIMITER ;
 
 CREATE TABLE IF NOT EXISTS Permissions (
     id CHAR(36) PRIMARY KEY,

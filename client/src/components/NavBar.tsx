@@ -1,10 +1,8 @@
-import { NavLink } from 'react-router-dom';
+// Navbar.tsx
+import { NavLink, useNavigate } from 'react-router-dom';
 import { PiSuitcase } from "react-icons/pi";
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react';
 import profilePic from '../assets/images/yana.png';
-
-
-
 
 const Navbar = () => {
   const linkClass = ({ isActive }: { isActive: boolean }) =>
@@ -12,6 +10,14 @@ const Navbar = () => {
       ? 'bg-black text-white hover:bg-gray-900 hover:text-white rounded-md px-3 py-2'
       : 'text-white hover:bg-gray-900 hover:text-white rounded-md px-3 py-2';
 
+  const navigate = useNavigate();
+
+  const handleSignOut = () => {
+    // Remove token from localStorage
+    localStorage.removeItem('token');
+    // Redirect to sign-in page
+    navigate('/');
+  };
 
   return (
     <nav className='bg-cyan-600 border-b border-cyan-700'>
@@ -48,24 +54,21 @@ const Navbar = () => {
                     </MenuButton>
                   </div>
                   <MenuItems
-                    transition
-                    className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black/5 transition focus:outline-none data-[closed]:scale-95 data-[closed]:transform data-[closed]:opacity-0 data-[enter]:duration-100 data-[leave]:duration-75 data-[enter]:ease-out data-[leave]:ease-in"
+                    className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black/5 focus:outline-none"
                   >
-                    <MenuItem>
-                      <a
-                        href="#"
-                        className="block px-4 py-2 text-sm text-gray-700 data-[focus]:bg-gray-100 data-[focus]:outline-none"
-                      >
-                        Your Profile
-                      </a>
+                    <MenuItem
+                      as="a"
+                      href="#"
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 focus:bg-gray-100"
+                    >
+                      Your Profile
                     </MenuItem>
-                    <MenuItem>
-                      <a
-                        href="#"
-                        className="block px-4 py-2 text-sm text-gray-700 data-[focus]:bg-gray-100 data-[focus]:outline-none"
-                      >
-                        Sign out
-                      </a>
+                    <MenuItem
+                      as="button"
+                      onClick={handleSignOut}
+                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 focus:bg-gray-100"
+                    >
+                      Sign out
                     </MenuItem>
                   </MenuItems>
                 </Menu>
@@ -77,4 +80,5 @@ const Navbar = () => {
     </nav>
   );
 };
+
 export default Navbar;

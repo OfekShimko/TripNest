@@ -1,4 +1,3 @@
-// SignInUp.tsx
 import React, { useState } from 'react';
 import { PiSuitcase } from "react-icons/pi";
 import { useNavigate } from 'react-router-dom';
@@ -16,10 +15,6 @@ const Sign: React.FC<SignProps> = ({ inOrUp }) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault(); // Prevent the default form submission behavior
     setErrorMessage(''); // Reset any previous error messages
-    //for testing
-    //const token = 'dummy-token';
-    //localStorage.setItem('token', token);
-    //navigate('/home');
 
     // Basic validation
     if (!email || !password) {
@@ -28,10 +23,9 @@ const Sign: React.FC<SignProps> = ({ inOrUp }) => {
     }
 
     try {
-      // Replace with your actual backend URL
-      const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:5000';
+      const endpoint = inOrUp === 'up' ? '/api/v1/users/signup' : '/api/v1/users/login';
 
-      const response = await fetch(`${backendUrl}/login`, {
+      const response = await fetch(endpoint, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -50,11 +44,11 @@ const Sign: React.FC<SignProps> = ({ inOrUp }) => {
         navigate('/home');
       } else {
         // Handle server-side errors
-        setErrorMessage(data.message || 'Login failed. Please try again.');
-        console.error('Error during login:')
+        setErrorMessage(data.message || `Sign ${inOrUp} failed. Please try again.`);
+        console.error(`Error during sign ${inOrUp}:`, data.message);
       }
     } catch (error) {
-      console.error('Error during login:', error);
+      console.error(`Error during sign ${inOrUp}:`, error);
       setErrorMessage('An unexpected error occurred. Please try again.');
     }
   };
@@ -66,7 +60,7 @@ const Sign: React.FC<SignProps> = ({ inOrUp }) => {
           <PiSuitcase className="mx-auto h-20 w-auto" size={100} />
 
           <h2 className="text-center text-2xl font-bold tracking-tight text-cyan-700">
-            Sign {inOrUp}
+            Sign {inOrUp === 'up' ? 'Up' : 'In'}
           </h2>
         </div>
 
@@ -98,7 +92,7 @@ const Sign: React.FC<SignProps> = ({ inOrUp }) => {
                   Password
                 </label>
                 <div className="text-sm">
-                  {inOrUp === "in" && (
+                  {inOrUp === 'in' && (
                     <a href="#" className="font-semibold text-cyan-700 hover:text-cyan-600">
                       Forgot password?
                     </a>
@@ -134,7 +128,7 @@ const Sign: React.FC<SignProps> = ({ inOrUp }) => {
                            font-semibold text-white shadow-sm hover:bg-gray-700 focus-visible:outline
                            focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
               >
-                Sign {inOrUp}
+                Sign {inOrUp === 'up' ? 'Up' : 'In'}
               </button>
             </div>
           </form>
