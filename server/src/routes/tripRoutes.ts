@@ -3,6 +3,7 @@ import { Trip } from '../entities/Trip'; // Import Trip entity
 import { AppDataSource } from '../database'; // Import DataSource
 import { TripUsers } from '../entities/TripUsers';
 import { TripActivities } from '../entities/TripActivities';
+import { getActivitiesByCity, getActivityByXid  } from '../opentripmap';
 
 export const router = express.Router();
 const tripRepository = AppDataSource.getRepository(Trip);
@@ -27,22 +28,27 @@ router.get('/', asyncHandler(async (req: Request, res: Response) => {
   })
 );
 
+
 // GET trip by trip_id
 router.get('/:id', asyncHandler(async (req: Request, res: Response) => {
   const { id } = req.params;
   console.log('Fetching trip for id:', id);
   try {
         // Use TypeORM to fetch all trips from the trips table
+      console.log('Fetching trip for id:', id);
       const trip = await tripRepository.findOneBy({ id }); // Finds all trips
+      console.log('Trip fetched:', trip);
       if (!trip) {
         return res.status(404).json({ message: 'Trip not found' });
       }
+      res.status(200).json(trip);
   } catch (err) {
     console.error('Error fetching trip:', err);
     res.status(500).send('Failed to fetch trip');
   }
 })
 );
+
 
 // POST route to create a new trip with permission assignment
 router.post('/', asyncHandler(async (req: Request, res: Response) => {
@@ -83,7 +89,7 @@ router.post('/', asyncHandler(async (req: Request, res: Response) => {
 // PUT route to update a trip by id
 router.put('/:id', asyncHandler(async (req: Request, res: Response) => {
     const { id } = req.params;
-    const { user_email } = req.body; // Assume user_email is passed to verify permissions
+    const { user_email } = req.body; 
 
     const trip = await tripRepository.findOneBy({ id });
     if (!trip) {
@@ -238,6 +244,7 @@ router.post('/:trip_id/add-activity', asyncHandler(async (req: Request, res: Res
   }
 }));
 
+
 // Define a route to get all activities for a specific trip by trip_id
 router.get('/:trip_id/activities', asyncHandler(async (req: Request, res: Response) => {
   console.log('Fetching activities for trip_id:', req.params.trip_id);
@@ -245,20 +252,42 @@ router.get('/:trip_id/activities', asyncHandler(async (req: Request, res: Respon
 
   const tripActivitiesRepository = AppDataSource.getRepository(TripActivities);
 
-  // Find the trip by ID and include its activities
-  const trip = await tripRepository.findOne({where : {id: trip_id}});
+  // Find the trip by ID
+  const trip = await tripRepository.findOne({ where: { id: trip_id } });
 
   if (!trip) {
     return res.status(404).json({ message: 'Trip not found' });
   }
 
-  // Alternatively, fetch activities separately if you didn't load relations
-  const activities = await tripActivitiesRepository.find({
-    where: { trip_id },
-  });
+  // Fetch the activity IDs (xids) associated with the trip
+  const tripActivities = await tripActivitiesRepository.find({ where: { trip_id } });
 
-  res.status(200).json({ trip, activities });
+  // If there are no activities, return an empty list
+  if (!tripActivities.length) {
+    return res.status(200).json({ trip, activities: [] });
+  }
+
+  // Extract xids from tripActivities
+  const activityIds = tripActivities.map(activity => activity.xid);
+
+  // Fetch detailed activity data for each xid
+  const detailedActivities = await Promise.all(
+    activityIds.map(async (xid) => {
+      try {
+        return await getActivityByXid(xid);
+      } catch (err) {
+        console.error(`Error fetching activity with xid ${xid}:`, err);
+        return null; // Return null for failed fetches
+      }
+    })
+  );
+
+  // Filter out null results in case of failed fetches
+  const filteredActivities = detailedActivities.filter(activity => activity !== null);
+
+  res.status(200).json({ trip, activities: filteredActivities });
 }));
+
 
 // Define a route to remove activities from a trip by xid
 router.delete('/:trip_id/activities', asyncHandler(async (req: Request, res: Response) => {
