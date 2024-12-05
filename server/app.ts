@@ -1,6 +1,5 @@
 import express from 'express';
-import { router as tripRoutes } from './src/routes/trip/tripRouter';
-import { router as userRoutes } from './src/routes/userRoutes';
+import { tripRouter, userRouter } from './src/routes';
 
 import { router as opentripmapRoutes } from './src/routes/opentripmapRoutes'; 
 import { AppDataSource } from './src/db/database_init'; // Import DataSource
@@ -24,8 +23,8 @@ AppDataSource.initialize()
 
 // Use the routes
 
-app.use('/api/v1/trips', tripRoutes);
-app.use('/api/v1/users', userRoutes);
+app.use('/api/v1/trips', tripRouter);
+app.use('/api/v1/users', userRouter);
 app.use('/api/v1/activities', opentripmapRoutes);
 
 

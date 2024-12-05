@@ -2,7 +2,7 @@ import express, { Request, Response, NextFunction } from 'express';
 import { TripService } from './tripService';
 import { Trip } from '../../db/entities/Trip';
 
-export const router = express.Router();
+export const tripRouter = express.Router();
 
 // Helper function to wrap async route handlers
 const asyncHandler = (fn: Function) => {
@@ -14,7 +14,7 @@ const asyncHandler = (fn: Function) => {
 const tripService = new TripService();
 
 // GET all trips
-router.get('/', asyncHandler(async (req: Request, res: Response) => {
+tripRouter.get('/', asyncHandler(async (req: Request, res: Response) => {
     try {
         const trips = await tripService.getTrips();
         res.status(200).json(trips);
@@ -25,7 +25,7 @@ router.get('/', asyncHandler(async (req: Request, res: Response) => {
   })
 );
 
-router.get('/:id', asyncHandler(async (req: Request, res: Response) => {
+tripRouter.get('/:id', asyncHandler(async (req: Request, res: Response) => {
   const { id } = req.params;
   console.log('Fetching trip for id:', id);
   try {
@@ -44,7 +44,7 @@ router.get('/:id', asyncHandler(async (req: Request, res: Response) => {
 );
 
 // POST route to create a new trip with permission assignment
-router.post('/', asyncHandler(async (req: Request, res: Response) => {
+tripRouter.post('/', asyncHandler(async (req: Request, res: Response) => {
   const { title, description, location, from_date, to_date, user_email } = req.body;
 
   // Validate input
@@ -62,7 +62,7 @@ router.post('/', asyncHandler(async (req: Request, res: Response) => {
 );
 
 // PUT route to update a trip by id
-router.put('/:id', asyncHandler(async (req: Request, res: Response) => {
+tripRouter.put('/:id', asyncHandler(async (req: Request, res: Response) => {
     const { id } = req.params;
     const { user_email } = req.body; 
 
@@ -81,7 +81,7 @@ router.put('/:id', asyncHandler(async (req: Request, res: Response) => {
 );
 
 // DELETE a specific trip by trip_id
-router.delete('/:id', asyncHandler(async (req: Request, res: Response) => {
+tripRouter.delete('/:id', asyncHandler(async (req: Request, res: Response) => {
   const { id } = req.params;
   const { user_email } = req.body;
 
@@ -99,7 +99,7 @@ router.delete('/:id', asyncHandler(async (req: Request, res: Response) => {
 }));
 
 // Search trip by title/location/from_date/to_date
-router.post('/search', asyncHandler(async (req: Request, res: Response) => {
+tripRouter.post('/search', asyncHandler(async (req: Request, res: Response) => {
   const { title, location, from_date, to_date } = req.query;
   
   console.log({ title, location, from_date, to_date });
@@ -114,7 +114,7 @@ router.post('/search', asyncHandler(async (req: Request, res: Response) => {
 }));
 
 // Define a route to add activities to a trip
-router.post('/:trip_id/add-activity', asyncHandler(async (req: Request, res: Response) => {
+tripRouter.post('/:trip_id/add-activity', asyncHandler(async (req: Request, res: Response) => {
   const { trip_id } = req.params;  // Get trip_id from route params
   const { xid } = req.body;        // Expect a single xid string from the request body
 
@@ -135,7 +135,7 @@ router.post('/:trip_id/add-activity', asyncHandler(async (req: Request, res: Res
 }));
 
 // Define a route to get all activities for a specific trip by trip_id
-router.get('/:trip_id/activities', asyncHandler(async (req: Request, res: Response) => {
+tripRouter.get('/:trip_id/activities', asyncHandler(async (req: Request, res: Response) => {
   console.log('Fetching activities for trip_id:', req.params.trip_id);
   const { trip_id } = req.params;
 
@@ -151,7 +151,7 @@ router.get('/:trip_id/activities', asyncHandler(async (req: Request, res: Respon
 }));
 
 // Define a route to remove activities from a trip by xid
-router.delete('/:trip_id/activities', asyncHandler(async (req: Request, res: Response) => {
+tripRouter.delete('/:trip_id/activities', asyncHandler(async (req: Request, res: Response) => {
   const { trip_id } = req.params;  // Get trip_id from route params
   const { xid } = req.body;        // Expect xid string to be deleted
 
