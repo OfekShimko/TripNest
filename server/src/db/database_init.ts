@@ -37,21 +37,9 @@ export const createDatabase = async () => {
     await connection.query(`CREATE DATABASE IF NOT EXISTS \`${process.env.DB_NAME}\`;`);
     await connection.end();
     console.log(`Database "${process.env.DB_NAME}" created.`);
+    await AppDataSource.initialize();
   } catch (error) {
     console.error("Error creating database:", error);
     throw error;
   }
 };
-
-createDatabase().then( () =>
-  AppDataSource.initialize()
-.then(() => {
-  console.log(`Database '${process.env.DB_NAME}' is ready.`);
-})
-.catch((err) => {
-  console.error('Error during Data Source initialization', err);
-}))
-// Initialize the connection
-
-
-console.log({options: AppDataSource.options});
