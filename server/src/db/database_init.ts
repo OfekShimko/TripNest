@@ -36,7 +36,7 @@ export const createDatabase = async () => {
 
     await connection.query(`CREATE DATABASE IF NOT EXISTS \`${process.env.DB_NAME}\`;`);
     await connection.end();
-    console.log(`Database "${process.env.DB_NAME}" is ready.`);
+    console.log(`Database "${process.env.DB_NAME}" created.`);
   } catch (error) {
     console.error("Error creating database:", error);
     throw error;
