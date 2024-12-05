@@ -1,0 +1,57 @@
+import 'reflect-metadata';
+import { DataSource } from 'typeorm';
+import dotenv from 'dotenv';
+import path from 'path';
+import { User } from './entities/User'; 
+import { Trip } from './entities/Trip'; 
+import { TripActivities } from './entities/TripActivities';
+import { TripUsers } from './entities/TripUsers';
+import mysql from "mysql2/promise";
+
+dotenv.config({ path: path.resolve(__dirname, '../../trip.env') });     
+
+// Initialize the TypeORM DataSource
+export const AppDataSource = new DataSource({
+  type: 'mysql',
+  host: process.env.DB_HOST,
+  port: Number(process.env.DB_PORT),
+  username: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
+  synchronize: true, // automatically synchronize database schema (for development)
+  logging: true,
+  entities: [User, Trip, TripActivities, TripUsers], // Add the User entity (and others like Trip, etc.)
+  migrations: [],
+  subscribers: [],
+});
+
+export const createDatabase = async () => {
+  try {
+    const connection = await mysql.createConnection({
+      host: process.env.DB_HOST ,
+      port: Number(process.env.DB_PORT),
+      user: process.env.DB_USER,
+      password: process.env.DB_PASSWORD,
+    });
+
+    await connection.query(`CREATE DATABASE IF NOT EXISTS \`${process.env.DB_NAME}\`;`);
+    await connection.end();
+    console.log(`Database "${process.env.DB_NAME}" is ready.`);
+  } catch (error) {
+    console.error("Error creating database:", error);
+    throw error;
+  }
+};
+
+createDatabase().then( () =>
+  AppDataSource.initialize()
+.then(() => {
+  console.log(`Database '${process.env.DB_NAME}' is ready.`);
+})
+.catch((err) => {
+  console.error('Error during Data Source initialization', err);
+}))
+// Initialize the connection
+
+
+console.log({options: AppDataSource.options});

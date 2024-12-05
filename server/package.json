@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "start": "tsc && ts-node src/routes/app.ts"
+    "start": "tsc && ts-node ./app.ts"
   },
   "keywords": [],
   "author": "",

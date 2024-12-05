@@ -1,10 +1,6 @@
 import express, { Request, Response, NextFunction } from 'express';
 import axios from 'axios'; // Assuming axios is already installed
-import dotenv from 'dotenv';
 import { getActivitiesByCity, getActivityByXid  } from '../opentripmap';  // Correct import path
-
-
-dotenv.config(); // Load .env variables
 
 const router = express.Router();
 

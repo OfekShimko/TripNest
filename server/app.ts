@@ -1,9 +1,9 @@
 import express from 'express';
-import { router as tripRoutes } from './tripRoutes';
-import { router as userRoutes } from './userRoutes';
+import { router as tripRoutes } from './src/routes/trip/tripRouter';
+import { router as userRoutes } from './src/routes/userRoutes';
 
-import { router as opentripmapRoutes } from './opentripmapRoutes'; 
-import { AppDataSource } from '../database'; // Import DataSource
+import { router as opentripmapRoutes } from './src/routes/opentripmapRoutes'; 
+import { AppDataSource } from './src/db/database_init'; // Import DataSource
 import cors from 'cors';
 
 const app = express();

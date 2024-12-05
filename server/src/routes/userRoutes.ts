@@ -1,9 +1,8 @@
 import express, { Request, Response, RequestHandler } from 'express';
-import { AppDataSource } from './../database';
-import { User } from './../entities/User';
+import { AppDataSource } from '../db/database_init';
+import { User } from '../db/entities/User';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-
 
 const JWT_SECRET = process.env.JWT_SECRET as string;
 
