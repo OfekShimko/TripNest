@@ -1,15 +1,16 @@
 import express from 'express';
-import { router as tripRoutes } from './tripRoutes';
-import { router as userRoutes } from './userRoutes';
+import { tripRouter, userRouter } from './src/routes';
 
-import { router as opentripmapRoutes } from './opentripmapRoutes'; 
-import { AppDataSource } from '../database'; // Import DataSource
-
+import { router as opentripmapRoutes } from './src/routes/opentripmapRoutes'; 
+import { AppDataSource } from './src/db/database_init'; // Import DataSource
+import cors from 'cors';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
+
+app.use(cors({ origin: 'http://localhost:8000' }));
 
 // Initialize TypeORM connection
 AppDataSource.initialize()
@@ -22,8 +23,8 @@ AppDataSource.initialize()
 
 // Use the routes
 
-app.use('/api/v1/trips', tripRoutes);
-app.use('/api/v1/users', userRoutes);
+app.use('/api/v1/trips', tripRouter);
+app.use('/api/v1/users', userRouter);
 app.use('/api/v1/activities', opentripmapRoutes);
 
 

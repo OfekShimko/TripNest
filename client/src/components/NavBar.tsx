@@ -1,5 +1,5 @@
-// Navbar.tsx
 import { NavLink, useNavigate } from 'react-router-dom';
+
 import { PiSuitcase } from "react-icons/pi";
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react';
 import profilePic from '../assets/images/yana.png';

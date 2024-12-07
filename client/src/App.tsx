@@ -4,8 +4,13 @@ import {
   createRoutesFromElements,
   RouterProvider,
 } from 'react-router-dom';
+<<<<<<< HEAD
 import PrivateRoute from './components/PrivateRoute';
 
+=======
+
+import PrivateRoute from './components/PrivateRoute';
+>>>>>>> main
 import MainLayout from './layouts/MainLayout.tsx';
 import HomePage from './pages/HomePage.tsx';
 import TripsPage from './pages/TripsPage.tsx';
@@ -19,7 +24,10 @@ import AddTripPage from "./pages/AddTripPage.tsx"
 import ActivityPage from './pages/ActivityPage.tsx';
 
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> main
 type Activity = {
   id: number;
   title: string;
