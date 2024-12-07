@@ -18,7 +18,6 @@ import TripPage from './pages/TripPage.tsx';
 import AddTripPage from "./pages/AddTripPage.tsx"
 import ActivityPage from './pages/ActivityPage.tsx';
 
-<<<<<<< HEAD
 
 type Activity = {
   id: number;

@@ -132,3 +132,4 @@ dist
 server/db/insert_data.sql
 server/db/schema.sql
 server/db/trip_nest.sql
+server/trip.env
