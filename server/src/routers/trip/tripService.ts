@@ -1,4 +1,4 @@
-import { getActivityByXid } from "../../opentripmap";
+import { ActivityService } from "../activity/activityService";
 import { Trip } from "../../db/entities/Trip";
 import { AppDataSource } from "../../db/database_init";
 import { TripDal, TripUserDal, UnsavedTrip } from "../../db";
@@ -8,6 +8,7 @@ import { QueryRunner } from "typeorm";
 export class TripService {
   tripDal = new TripDal();
   tripUserDal = new TripUserDal();
+  activityService = new ActivityService();
 
   async getTrips() {
     const trips = await this.tripDal.getTrips();
@@ -140,7 +141,7 @@ export class TripService {
     const detailedActivities = await Promise.all(
       activityIds.map(async (xid) => {
         try {
-          return await getActivityByXid(xid);
+          return await this.activityService.getActivityByXid(xid);
         } catch (err) {
           console.error(`Error fetching activity with xid ${xid}:`, err);
           return null; // Return null for failed fetches

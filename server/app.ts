@@ -1,7 +1,6 @@
 import express from 'express';
-import { tripRouter, userRouter } from './src/routes';
+import { tripRouter, userRouter, activityRouter } from './src/routers';
 
-import { router as opentripmapRoutes } from './src/routes/opentripmapRoutes'; 
 import { AppDataSource } from './src/db/database_init'; // Import DataSource
 import cors from 'cors';
 
@@ -25,7 +24,7 @@ AppDataSource.initialize()
 
 app.use('/api/v1/trips', tripRouter);
 app.use('/api/v1/users', userRouter);
-app.use('/api/v1/activities', opentripmapRoutes);
+app.use('/api/v1/activities', activityRouter);
 
 
 // Start the server

@@ -1,8 +1,9 @@
 import express, { Request, Response, NextFunction } from 'express';
-import axios from 'axios'; // Assuming axios is already installed
-import { getActivitiesByCity, getActivityByXid  } from '../opentripmap';  // Correct import path
+import { ActivityService  } from './activityService';
 
-const router = express.Router();
+export const activityRouter = express.Router();
+
+const activityService = new ActivityService()
 
 // Helper function to wrap async route handlers
 const asyncHandler = (fn: Function) => {
@@ -14,11 +15,11 @@ const asyncHandler = (fn: Function) => {
 
 
 // Define the route to get activities by city
-router.get('/', async (req: Request, res: Response) => {
+activityRouter.get('/', async (req: Request, res: Response) => {
   const location = req.query.location as string || 'Tel Aviv';  // Default to 'Tel Aviv' if no location is provided
 
   try {
-    const activities = await getActivitiesByCity(location);  // Fetch activities using predefined coordinates for the location
+    const activities = await activityService.getActivitiesByCity(location);  // Fetch activities using predefined coordinates for the location
     res.json(activities);  // Return the activities to the client
   } catch (error) {
     console.error('Error fetching activities:', error);
@@ -29,11 +30,11 @@ router.get('/', async (req: Request, res: Response) => {
 
 
 // Define the route to get an activity by its xid
-router.get('/:xid', asyncHandler(async (req: Request, res: Response) => {
+activityRouter.get('/:xid', asyncHandler(async (req: Request, res: Response) => {
   const { xid } = req.params;  // Extract the xid from the URL parameter
 
   try {
-    const activity = await getActivityByXid(xid);  // Fetch the activity by its xid
+    const activity = await activityService.getActivityByXid(xid);  // Fetch the activity by its xid
     if (!activity) {
       return res.status(404).json({ message: 'Activity not found' });
     }
@@ -43,6 +44,3 @@ router.get('/:xid', asyncHandler(async (req: Request, res: Response) => {
     res.status(500).send('Error fetching activity');
   }
 }));
-
-
-export { router };
