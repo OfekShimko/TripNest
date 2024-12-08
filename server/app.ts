@@ -1,3 +1,6 @@
+import dotenv from 'dotenv';
+dotenv.config({ path: 'trip.env' });
+
 import express from 'express';
 import { tripRouter, userRouter } from './src/routes';
 
