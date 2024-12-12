@@ -1,14 +1,11 @@
 import 'reflect-metadata';
 import { DataSource } from 'typeorm';
-import dotenv from 'dotenv';
-import path from 'path';
 import { User } from './entities/User'; 
 import { Trip } from './entities/Trip'; 
 import { TripActivities } from './entities/TripActivities';
 import { TripUsers } from './entities/TripUsers';
 import mysql from "mysql2/promise";
 
-dotenv.config({ path: path.resolve(__dirname, '../../trip.env') });     
 
 // Initialize the TypeORM DataSource
 export const AppDataSource = new DataSource({

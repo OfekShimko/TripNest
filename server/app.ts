@@ -4,6 +4,9 @@ import { tripRouter, userRouter } from './src/routes';
 import { router as opentripmapRoutes } from './src/routes/opentripmapRoutes'; 
 import { AppDataSource } from './src/db/database_init'; // Import DataSource
 import cors from 'cors';
+import dotenv from 'dotenv'
+
+dotenv.config({ path: './trip.env' });     
 
 const app = express();
 const PORT = process.env.PORT || 3000;
