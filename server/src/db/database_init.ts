@@ -15,7 +15,7 @@ export const AppDataSource = new DataSource({
   username: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
-  synchronize: true, // Set to 'true' to create tables, 'false' to skip creation
+  synchronize: false, // Set to 'true' to create tables, 'false' to skip creation
   logging: true,
   entities: [User, Trip, TripActivities, TripUsers], // Add the User entity (and others like Trip, etc.)
   migrations: [],

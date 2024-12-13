@@ -2,12 +2,12 @@ import axios from 'axios';
 import fs from 'fs';
 import path from 'path';
 import { ActivityDetails , OpenTripMapResponse , WikipediaSummaryResponse  } from './interfaces'; // Adjust the path based on where the interfaces file is located
-
+import dotenv from 'dotenv';
+dotenv.config({ path: './trip.env' });
 
 const cityCoordinates = JSON.parse(
     fs.readFileSync(path.join(__dirname, 'json/cityCoordinates.json'), 'utf-8')
   );
-
 
 
 
