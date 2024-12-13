@@ -3,7 +3,6 @@ import fs from 'fs';
 import path from 'path';
 import { ActivityDetails , OpenTripMapResponse , WikipediaSummaryResponse  } from './interfaces'; // Adjust the path based on where the interfaces file is located
 
-const API_KEY = process.env.OPENTRIPMAP_API_KEY;  // It's in the .env file
 
 const cityCoordinates = JSON.parse(
     fs.readFileSync(path.join(__dirname, 'json/cityCoordinates.json'), 'utf-8')
@@ -14,6 +13,8 @@ const cityCoordinates = JSON.parse(
 
 // Fetch detailed activity info by xid
 export const getActivityByXid = async (xid: string): Promise<ActivityDetails | null> => {
+  const API_KEY = process.env.OPENTRIPMAP_API_KEY;
+
   try {
     const response = await axios.get(`https://api.opentripmap.com/0.1/en/places/xid/${xid}`, {
       params: { apikey: API_KEY },
@@ -51,7 +52,7 @@ export const getActivityByXid = async (xid: string): Promise<ActivityDetails | n
   
 export const getActivitiesByCity = async (city: string, type?: string, popularity?: string) => {
     const cityData = cityCoordinates[city];
-  
+    const API_KEY = process.env.OPENTRIPMAP_API_KEY;
     if (!cityData) {
       throw new Error(`City '${city}' not found in coordinates.`);
     }
@@ -89,6 +90,8 @@ export const getActivitiesByCity = async (city: string, type?: string, popularit
 
 
 const fetchActivityDetails = async (activityId: string): Promise<ActivityDetails> => {
+  const API_KEY = process.env.OPENTRIPMAP_API_KEY;
+
   try {
     const response = await axios.get(`https://api.opentripmap.com/0.1/en/places/xid/${activityId}`, {
       params: { apikey: API_KEY },
