@@ -4,12 +4,9 @@ import { tripRouter, userRouter } from './src/routes';
 import { router as opentripmapRoutes } from './src/routes/opentripmapRoutes'; 
 import { AppDataSource } from './src/db/database_init'; // Import DataSource
 import cors from 'cors';
-import dotenv from 'dotenv'
-
-dotenv.config({ path: './trip.env' });     
+import { config } from './config';
 
 const app = express();
-const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
 
@@ -32,8 +29,8 @@ app.use('/api/v1/activities', opentripmapRoutes);
 
 
 // Start the server
-app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
+app.listen(config.appPort, () => {
+  console.log(`Server is running on http://localhost:${config.appPort}`);
 });
 
 // Export app as default
