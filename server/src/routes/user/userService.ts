@@ -2,13 +2,7 @@ import { UserDal } from '../../db/dal';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { User } from '../../db/entities';
-
-const JWT_SECRET = process.env.JWT_SECRET as string;
-
-if (!JWT_SECRET) {
-  console.error('JWT_SECRET is not defined');
-  process.exit(1);
-}
+import { config } from '../../../config';
 
 export class UserService {
   private userDal = new UserDal();
@@ -47,6 +41,12 @@ export class UserService {
     const passwordMatch = await bcrypt.compare(password, user.password);
     if (!passwordMatch) {
       throw new Error('Invalid email or password');
+    }
+
+    const JWT_SECRET = config.jwtSecret as string;
+
+    if (!JWT_SECRET) {
+      new Error('JWT_SECRET is not defined')
     }
 
     const token = jwt.sign(

@@ -1,24 +1,22 @@
 import 'reflect-metadata';
 import { DataSource } from 'typeorm';
-import dotenv from 'dotenv';
-import path from 'path';
 import { User } from './entities/User'; 
 import { Trip } from './entities/Trip'; 
 import { TripActivities } from './entities/TripActivities';
 import { TripUsers } from './entities/TripUsers';
 import mysql from "mysql2/promise";
+import { config } from '../../config';
 
-dotenv.config({ path: path.resolve(__dirname, '../../trip.env') });     
 
 // Initialize the TypeORM DataSource
 export const AppDataSource = new DataSource({
   type: 'mysql',
-  host: process.env.DB_HOST,
-  port: Number(process.env.DB_PORT),
-  username: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME,
-  synchronize: true, // automatically synchronize database schema (for development)
+  host: config.dbHost,
+  port: config.dbPort,
+  username: config.dbUsername,
+  password: config.dbPassword,
+  database: config.dbName,
+  synchronize: true, // Set to 'true' to create tables, 'false' to skip creation
   logging: true,
   entities: [User, Trip, TripActivities, TripUsers], // Add the User entity (and others like Trip, etc.)
   migrations: [],
@@ -28,15 +26,15 @@ export const AppDataSource = new DataSource({
 export const createDatabase = async () => {
   try {
     const connection = await mysql.createConnection({
-      host: process.env.DB_HOST ,
-      port: Number(process.env.DB_PORT),
-      user: process.env.DB_USER,
-      password: process.env.DB_PASSWORD,
+      host: config.dbHost ,
+      port: config.dbPort,
+      user: config.dbUsername,
+      password: config.dbPassword,
     });
 
-    await connection.query(`CREATE DATABASE IF NOT EXISTS \`${process.env.DB_NAME}\`;`);
+    await connection.query(`CREATE DATABASE IF NOT EXISTS \`${config.dbName}\`;`);
     await connection.end();
-    console.log(`Database "${process.env.DB_NAME}" created.`);
+    console.log(`Database "${config.dbName}" created.`);
     await AppDataSource.initialize();
   } catch (error) {
     console.error("Error creating database:", error);
