@@ -7,7 +7,10 @@ type Activity = {
   title: string;
   location: string;
   description: string;
+  image_url: string;
+  kinds?: string;
 };
+
 
 interface ActivityListingsProps {
   isHome?: boolean;
@@ -16,14 +19,14 @@ interface ActivityListingsProps {
 }
 
 const ActivityListings = ({ isHome = false, locationQuery, cityName }: ActivityListingsProps) => {
-  const [activities, setactivities] = useState<Activity[]>([]);
+  const [activities, setActivities] = useState<Activity[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);
 
   useEffect(() => {
-    const fetchactivities = async () => {
+    const fetchActivities = async () => {
       let apiUrl: string;
-      
+
       if (isHome) {
         apiUrl = '/api/v1/activities';
       } else {
@@ -34,16 +37,28 @@ const ActivityListings = ({ isHome = false, locationQuery, cityName }: ActivityL
 
       try {
         const res = await fetch(apiUrl);
-        let data = await res.json();
+        if (!res.ok) {
+          // If it's not a successful response, handle it gracefully
+          const errorText = await res.text(); // read the error as text
+          console.error(`Server responded with error: ${errorText}`);
+          throw new Error(`Error fetching data: ${errorText}`);
+        }
+
+        const data = await res.json();
+
+
+        console.log(data)
 
         const mappedActivities: Activity[] = data.map((activity: any) => ({
           id: activity.xid,
           title: activity.name,
           location: locationQuery && locationQuery.trim() !== '' ? locationQuery : cityName || 'Tel Aviv',
-          description: activity.description || ""
+          description: activity.description || "",
+          image_url: activity.image_url || "", // If empty string, we'll conditionally hide the <img>
+          kinds: activity.kinds
         }));
 
-        setactivities(mappedActivities);
+        setActivities(mappedActivities);
       } catch (error) {
         console.log('Error fetching data', error);
       } finally {
@@ -52,7 +67,7 @@ const ActivityListings = ({ isHome = false, locationQuery, cityName }: ActivityL
     };
 
     setCurrentIndex(0);
-    fetchactivities();
+    fetchActivities();
   }, [locationQuery, isHome, cityName]);
 
   const activitiesToShow = activities.slice(currentIndex, currentIndex + 4);
@@ -82,7 +97,7 @@ const ActivityListings = ({ isHome = false, locationQuery, cityName }: ActivityL
         {loading ? (
           <Spinner loading={loading} />
         ) : (
-          <div className='relative flex items-center justify-center'>
+          <div className='relative flex items-center justify-center px-10'>
             {currentIndex > 0 && (
               <button
                 onClick={handlePrev}
