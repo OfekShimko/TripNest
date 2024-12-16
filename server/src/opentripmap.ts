@@ -3,14 +3,10 @@ import fs from 'fs';
 import path from 'path';
 import { ActivityDetails , OpenTripMapResponse , WikipediaSummaryResponse  } from './interfaces'; // Adjust the path based on where the interfaces file is located
 import { config } from '../config';
+import { isrCoordinates, usaCoordinates } from './coordinates'
 
 
-const cityCoordinates = JSON.parse(
-    fs.readFileSync(path.join(__dirname, 'json/cityCoordinates.json'), 'utf-8')
-  );
-
-
-
+const cityCoordinates = {...isrCoordinates, ...usaCoordinates}
 
 // Fetch detailed activity info by xid
 export const getActivityByXid = async (xid: string): Promise<ActivityDetails | null> => {
@@ -68,6 +64,8 @@ export const getActivitiesByCity = async (city: string, type?: string, popularit
           radius: 5000,
           types: type || 'interesting_places',
           apikey: API_KEY,
+          limit: 20,
+          offset:0
         }
       });
   

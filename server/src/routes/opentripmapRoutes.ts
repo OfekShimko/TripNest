@@ -15,11 +15,12 @@ const asyncHandler = (fn: Function) => {
 
 // Define the route to get activities by city
 router.get('/', async (req: Request, res: Response) => {
-  const location = req.query.location as string || 'Tel Aviv';  // Default to 'Tel Aviv' if no location is provided
+  const location = req.query.location as string || 'New York';  // Default to 'New York' if no location is provided
 
   try {
     const activities = await getActivitiesByCity(location);  // Fetch activities using predefined coordinates for the location
     const filteredActivities = activities.filter((activity: any) => activity && Object.keys(activity).length > 0);
+    console.log({ofekTheKing: filteredActivities.length})
     res.json(filteredActivities);
   } catch (error) {
     console.error('Error fetching activities:', error);
