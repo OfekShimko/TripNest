@@ -64,8 +64,6 @@ export const getActivitiesByCity = async (city: string, type?: string, popularit
           radius: 5000,
           types: type || 'interesting_places',
           apikey: API_KEY,
-          limit: 20,
-          offset:0
         }
       });
   
