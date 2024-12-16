@@ -20,7 +20,7 @@ router.get('/', async (req: Request, res: Response) => {
   try {
     const activities = await getActivitiesByCity(location);  // Fetch activities using predefined coordinates for the location
     const filteredActivities = activities.filter((activity: any) => activity && Object.keys(activity).length > 0);
-    console.log({ofekTheKing: filteredActivities.length})
+
     res.json(filteredActivities);
   } catch (error) {
     console.error('Error fetching activities:', error);
