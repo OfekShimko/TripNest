@@ -19,17 +19,22 @@ const AddTripPage = ({ addTripSubmit }) => {
         const formatDate = (date: string | Date) => {
             const d = new Date(date);
             return d.toISOString().split('T')[0]; // Extract YYYY-MM-DD part only
-          };
-          
-          const newTrip = {
+        };
+        const userEmail = localStorage.getItem('user_email');
+        if (!userEmail) {
+            toast.error('User not logged in.');
+            return; // Stop form submission if user email isn't found
+        }
+
+        const newTrip = {
             title,
             location,
             description,
             from_date: formatDate(fromDate), // Formatted correctly
             to_date: formatDate(toDate),
-            user_email: 'yana.silutin@gmail.com'
-          };
-          
+            user_email: userEmail
+        };
+
 
         addTripSubmit(newTrip);
 
