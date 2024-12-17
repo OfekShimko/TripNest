@@ -7,11 +7,12 @@ import Spinner from './Spinner';
 type Trip = {
   id: string;
   title: string;
-  type: string;
   description: string;
   location: string;
-  dates: string;
-  activities: { id: string }[];
+  from_date: Date;
+  to_date: Date;
+  activities: TripActivities[];
+  users:TripUsers[];
 };
 
 
@@ -22,7 +23,7 @@ const TripListings = ({ isHome = false }:{isHome:boolean}) => {
 
   useEffect(() => {
     const fetchtrips = async () => {
-      const apiUrl:string= isHome ? '/api/trips?_limit=3' : '/api/trips';
+      const apiUrl:string= isHome ? '/api/v1/trips?_limit=3' : '/api/v1/trips';
       try {
         const res = await fetch(apiUrl);
         const data = await res.json();

@@ -5,11 +5,12 @@ import { Link } from 'react-router-dom';
 type Trip = {
   id: string;
   title: string;
-  type: string;
   description: string;
   location: string;
-  dates: string;
-  activities: { id: string }[];
+  from_date: Date;
+  to_date: Date;
+  activities: TripActivities[];
+  users:TripUsers[];
 };
 
 const tripListing = ({ trip }: { trip: Trip }) => {
@@ -25,7 +26,6 @@ const tripListing = ({ trip }: { trip: Trip }) => {
     <div className='bg-white rounded-xl shadow-md relative'>
       <div className='p-4'>
         <div className='mb-6'>
-          <div className='text-gray-600 my-2'>{trip.type}</div>
           <h3 className='text-xl font-bold'>{trip.title}</h3>
         </div>
 
@@ -38,7 +38,7 @@ const tripListing = ({ trip }: { trip: Trip }) => {
           {showFullDescription ? 'Less' : 'More'}
         </button>
 
-        <h3 className='mb-2'>{trip.dates}</h3>
+        <h3 className='mb-4'>{`${new Date(trip.from_date).toLocaleDateString()} - ${new Date(trip.to_date).toLocaleDateString()}`}</h3>
 
         <div className='border border-gray-100 mb-5'></div>
 
