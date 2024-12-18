@@ -17,7 +17,7 @@ tripRouter.get('/', asyncHandler(async (req: Request, res: Response) => {
   const userId = req.query.userId as string;
 
   if (!userId) {
-    return res.status(400).json({ message: "User email is required to get trips." });
+    return res.status(400).json({ message: "User id is required to get trips." });
   }
 
   try {
