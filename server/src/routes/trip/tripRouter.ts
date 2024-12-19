@@ -13,16 +13,21 @@ const asyncHandler = (fn: Function) => {
 
 const tripService = new TripService();
 
-// GET all trips
 tripRouter.get('/', asyncHandler(async (req: Request, res: Response) => {
-    try {
-        const trips = await tripService.getTrips();
-        res.status(200).json(trips);
-    } catch (err) {
-      console.error('Error fetching trips:', err);
-      res.status(500).send('Failed to fetch trips');
-    }
-  })
+  const userId = req.query.userId as string;
+
+  if (!userId) {
+    return res.status(400).json({ message: "User id is required to get trips." });
+  }
+
+  try {
+      const trips = await tripService.getTrips(userId);
+      res.status(200).json(trips);
+  } catch (err) {
+    console.error('Error fetching trips:', err);
+    res.status(500).send('Failed to fetch trips');
+  }
+})
 );
 
 tripRouter.get('/:id', asyncHandler(async (req: Request, res: Response) => {

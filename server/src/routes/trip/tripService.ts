@@ -9,8 +9,8 @@ export class TripService {
   tripDal = new TripDal();
   tripUserDal = new TripUserDal();
 
-  async getTrips() {
-    const trips = await this.tripDal.getTrips();
+  async getTrips(userId: string) {
+    const trips = await this.tripDal.getTripsForUser(userId);
     return trips;
   }
 
