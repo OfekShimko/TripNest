@@ -13,11 +13,19 @@ export class TripDal {
 
     async getTripsForUser(userId: string): Promise<Trip[]> {
         return this.tripRepository.createQueryBuilder("trip")
-        .leftJoinAndSelect('trip.users', 'tripUsers')
-        .leftJoinAndSelect('tripUsers.user', 'user')
-        .where('user.id = :userId', { userId })
-        .getMany();
-      }
+            .leftJoin('trip.users', 'tripUsers')
+            .leftJoin('tripUsers.user', 'user')
+            .where('user.id = :userId', { userId })
+            .select([
+                'trip.id',
+                'trip.title',
+                'trip.description',
+                'trip.location',
+                'trip.from_date',
+                'trip.to_date',
+            ])
+            .getMany();
+    }
 
     async getTripById(id: string) {
         const trip = await this.tripRepository.findOneBy({ id });
