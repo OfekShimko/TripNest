@@ -17,14 +17,8 @@ import RegisterPage from './pages/RegisterPage.tsx';
 import TripPage from './pages/TripPage.tsx';
 import AddTripPage from "./pages/AddTripPage.tsx"
 import ActivityPage from './pages/ActivityPage.tsx';
+import { ActivityCacheProvider } from './components/ActivityCacheContext';
 
-
-type Activity = {
-  id: number;
-  title: string;
-  location: string;
-  description: string;
-};
 
 type Trip = {
   id: string;
@@ -119,6 +113,10 @@ const App = () => {
   
 
 
-  return <RouterProvider router={router} />;
+  return (
+    <ActivityCacheProvider>
+      <RouterProvider router={router} />
+    </ActivityCacheProvider>
+  );
 };
 export default App;

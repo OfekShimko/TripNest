@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import ActivityListings from '../components/ActivityListings';
-import cityCoordinates from '../assets/json/cityCoordinates.json';
+import cityCoordinates from '../assets/json/useCoordinates.json';
 
 const ActivitiesPage = () => {
   const cityNames = Object.keys(cityCoordinates);
@@ -79,13 +79,13 @@ const ActivitiesPage = () => {
       ) : (
         <>
           <div className='mb-10 w-full max-w-6xl'>
-            <ActivityListings isHome={false} locationQuery='Tel Aviv' cityName='Tel Aviv' />
+            <ActivityListings isHome={false} locationQuery='New York' cityName='New York' />
           </div>
           <div className='mb-10 w-full max-w-6xl'>
-            <ActivityListings isHome={false} locationQuery='Jerusalem' cityName='Jerusalem' />
+            <ActivityListings isHome={false} locationQuery='Washington DC' cityName='Washington DC' />
           </div>
           <div className='w-full max-w-6xl'>
-            <ActivityListings isHome={false} locationQuery='Haifa' cityName='Haifa' />
+            <ActivityListings isHome={false} locationQuery='Los Angeles' cityName='Los Angeles' />
           </div>
         </>
       )}
