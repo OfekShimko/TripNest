@@ -1,0 +1,1 @@
+export type CoordinatesConfig = Record<string, {"lat": number, "lon": number}>
