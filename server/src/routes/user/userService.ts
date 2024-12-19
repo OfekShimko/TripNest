@@ -1,8 +1,6 @@
 import { UserDal } from '../../db/dal';
 import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
 import { User } from '../../db/entities';
-import { config } from '../../../config';
 
 export class UserService {
   private userDal = new UserDal();
@@ -11,7 +9,7 @@ export class UserService {
     return await this.userDal.getAllUsers();
   }
 
-  public async signup(email: string, password: string): Promise<void> {
+  public async signup(email: string, password: string): Promise<{userId: string}> {
     if (!email || !password) {
       throw new Error('Email and password are required');
     }
@@ -25,10 +23,12 @@ export class UserService {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    await this.userDal.createUser({ username, email, password: hashedPassword });
+    const user = await this.userDal.createUser({ username, email, password: hashedPassword });
+    return { userId: user.id };
+
   }
 
-  public async login(email: string, password: string): Promise<{ token: string }> {
+  public async login(email: string, password: string): Promise<{ userId: string}> {
     if (!email || !password) {
       throw new Error('Email and password are required');
     }
@@ -43,19 +43,7 @@ export class UserService {
       throw new Error('Invalid email or password');
     }
 
-    const JWT_SECRET = config.jwtSecret as string;
-
-    if (!JWT_SECRET) {
-      new Error('JWT_SECRET is not defined')
-    }
-
-    const token = jwt.sign(
-      { userId: user.id, username: user.username, email: user.email },
-      JWT_SECRET,
-      { expiresIn: '1y' }
-    );
-
-    return { token };
+    return { userId: user.id };
   }
 
   public async resetPassword(

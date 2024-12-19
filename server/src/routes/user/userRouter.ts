@@ -20,8 +20,8 @@ userRouter.post('/signup', async (req: Request, res: Response) => {
   const { email, password } = req.body;
 
   try {
-    await userService.signup(email, password);
-    res.status(201).json({ message: 'User signup successfully' });
+    const { userId } = await userService.signup(email, password);
+    res.status(201).json({ message: 'User signup successfully', userId });
   } catch (err: any) {
     console.error('Error in signup:', err);
     res.status(400).json({ message: err.message });
@@ -33,8 +33,8 @@ userRouter.post('/login', async (req: Request, res: Response) => {
   const { email, password } = req.body;
 
   try {
-    const { token } = await userService.login(email, password);
-    res.status(200).json({ message: 'Login successful', token });
+    const { userId } = await userService.login(email, password);
+    res.status(200).json({ message: 'Login successful', userId });
   } catch (err: any) {
     console.error('Error in login:', err);
     res.status(401).json({ message: err.message });
