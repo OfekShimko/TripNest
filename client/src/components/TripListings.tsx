@@ -22,21 +22,39 @@ const TripListings = ({ isHome = false }:{isHome:boolean}) => {
 
 
   useEffect(() => {
-    const fetchtrips = async () => {
-      const apiUrl:string= isHome ? '/api/v1/trips?_limit=3' : '/api/v1/trips';
+    const fetchTrips = async () => {
+      const userId = localStorage.getItem('userId');
+      if (!userId) {
+        console.error('No userID provided for fetching trips');
+        setLoading(false);
+        return;
+      }
+  
+      setLoading(true);
+  
+      const apiUrl = isHome 
+        ? `/api/v1/trips?userId=${userId}&_limit=3` 
+        : `/api/v1/trips?userId=${userId}`;
+  
       try {
-        const res = await fetch(apiUrl);
-        const data = await res.json();
+        const response = await fetch(apiUrl);
+  
+        if (!response.ok) {
+          throw new Error(`Failed to fetch trips: ${response.statusText}`);
+        }
+  
+        const data = await response.json();
         setTrips(data);
       } catch (error) {
-        console.log('Error fetching data', error);
+        console.error('Error fetching trips:', error);
       } finally {
         setLoading(false);
       }
     };
-
-    fetchtrips();
-  }, []);
+  
+    fetchTrips();
+  }, [isHome]);
+  
 
   return (
     <section className='px-4 py-10'>

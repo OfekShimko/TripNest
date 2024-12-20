@@ -17,6 +17,8 @@ const Navbar = () => {
   const handleSignOut = () => {
     // Remove token from localStorage
     localStorage.removeItem('token');
+    localStorage.removeItem('userId');
+    localStorage.removeItem('user_email');
     // Redirect to sign-in page
     navigate('/');
   };
