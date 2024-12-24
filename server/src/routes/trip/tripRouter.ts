@@ -21,14 +21,13 @@ tripRouter.get('/', asyncHandler(async (req: Request, res: Response) => {
   }
 
   try {
-      const trips = await tripService.getTrips(userId);
-      res.status(200).json(trips);
+    const trips = await tripService.getTrips(userId);
+    res.status(200).json(trips);
   } catch (err) {
     console.error('Error fetching trips:', err);
     res.status(500).send('Failed to fetch trips');
   }
-})
-);
+}));
 
 tripRouter.get('/:id', asyncHandler(async (req: Request, res: Response) => {
   const { id } = req.params;
@@ -50,31 +49,36 @@ tripRouter.get('/:id', asyncHandler(async (req: Request, res: Response) => {
 
 // POST route to create a new trip with permission assignment
 tripRouter.post('/', asyncHandler(async (req: Request, res: Response) => {
-  const { title, description, location, from_date, to_date, user_email } = req.body;
+  const { title, description, location, from_date, to_date, user_id } = req.body;
 
   // Validate input
-  if (!title || !description || !location || !from_date || !to_date || !user_email) {
+  if (!title || !description || !location || !from_date || !to_date || !user_id) {
     return res.status(400).json({
-      message: 'Title, description, location, from_date, to_date, and user_email are required.',
+      message: 'title, description, location, from_date, to_date, and user_id are required.'
     });
   }
   
   const trip = { title, description, location, from_date, to_date };
-  const savedTrip = await tripService.createTrip(trip, user_email);
+  try {
+    const savedTrip = await tripService.createTrip(trip, user_id);
+    res.status(201).json(savedTrip);
+  } catch (err) {
+    console.error('Error creating trip:', err);
+    res.status(500).send('Failed to create trip');
+  }
+}));
 
-  res.status(201).json(savedTrip);
-})
-);
-
-// PUT route to update a trip by id
+// PUT /:id
 tripRouter.put('/:id', asyncHandler(async (req: Request, res: Response) => {
-    const { id } = req.params;
-    const { user_email } = req.body; 
+  const { id } = req.params;
+  const { user_id, ...updates } = req.body; // separate user_id from other fields
 
-    const updates: Partial<Trip> = req.body;
+  if (!user_id) {
+    return res.status(400).json({ message: 'user_id is required to update trip.' });
+  }
 
-    const result = await tripService.updateTrip(id, updates, user_email);
-
+  try {
+    const result = await tripService.updateTrip(id, updates, user_id);
     if (result === null) {
       return res.status(404).json({ message: 'Trip not found' });
     } else if (result === 'Forbidden') {
@@ -82,24 +86,35 @@ tripRouter.put('/:id', asyncHandler(async (req: Request, res: Response) => {
     } else {
       res.status(200).json(result);
     }
-  })
-);
+  } catch (err) {
+    console.error('Error updating trip:', err);
+    res.status(500).send('Failed to update trip');
+  }
+}));
 
-// DELETE a specific trip by trip_id
+// DELETE /:id
 tripRouter.delete('/:id', asyncHandler(async (req: Request, res: Response) => {
   const { id } = req.params;
-  const { user_email } = req.body;
+  const { user_id } = req.body;
 
-  const result = await tripService.deleteTrip(id, user_email);
+  if (!user_id) {
+    return res.status(400).json({ message: 'user_id is required to delete trip.' });
+  }
 
-  if (result === 'NotFound') {
-    return res.status(404).json({ message: 'Trip not found' });
-  } else if (result === 'Forbidden') {
-    return res.status(403).json({ message: 'You do not have permission to delete this trip' });
-  } else if (result === 'Success') {
-    res.status(200).json({ message: 'Trip and associated activities deleted successfully' });
-  } else {
-    res.status(500).json({ message: 'Error deleting trip and activities' });
+  try {
+    const result = await tripService.deleteTrip(id, user_id);
+    if (result === 'NotFound') {
+      return res.status(404).json({ message: 'Trip not found' });
+    } else if (result === 'Forbidden') {
+      return res.status(403).json({ message: 'You do not have permission to delete this trip' });
+    } else if (result === 'Success') {
+      res.status(200).json({ message: 'Trip and associated activities deleted successfully' });
+    } else {
+      res.status(500).json({ message: 'Error deleting trip and activities' });
+    }
+  } catch (err) {
+    console.error('Error deleting trip:', err);
+    res.status(500).send('Failed to delete trip');
   }
 }));
 

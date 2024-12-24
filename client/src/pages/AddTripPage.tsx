@@ -20,8 +20,8 @@ const AddTripPage = ({ addTripSubmit }) => {
             const d = new Date(date);
             return d.toISOString().split('T')[0]; // Extract YYYY-MM-DD part only
         };
-        const userEmail = localStorage.getItem('user_email');
-        if (!userEmail) {
+        const userId = localStorage.getItem('userId');
+        if (!userId) {
             toast.error('User not logged in.');
             return; // Stop form submission if user email isn't found
         }
@@ -32,7 +32,7 @@ const AddTripPage = ({ addTripSubmit }) => {
             description,
             from_date: formatDate(fromDate), // Formatted correctly
             to_date: formatDate(toDate),
-            user_email: userEmail
+            user_id: userId
         };
 
 

@@ -20,21 +20,21 @@ export class TripService {
     return trip;
   }
 
-  async createTrip(trip: UnsavedTrip, email: string) {
+  async createTrip(trip: UnsavedTrip, user_id: string) {
     const savedTrip = await this.tripDal.createTrip(trip);
-    await this.tripUserDal.createTripUser(savedTrip, email);
+
+    await this.tripUserDal.createTripUser(savedTrip, user_id);
+
     return savedTrip;
   }
 
-  async updateTrip(id: string, updates: Partial<Trip>, user_email: string) {
+  async updateTrip(id: string, updates: Partial<Trip>, user_id: string) {
     const trip = await this.tripDal.getTripById(id);
     if (!trip) {
       return null;
     }
 
-    // Check if user is associated with the trip and has the correct permission
-    const tripUser = await this.tripDal.findTripUser(id, user_email);
-
+    const tripUser = await this.tripDal.findTripUser(id, user_id);
     if (!tripUser || tripUser.permission_level !== 'Manager') {
       return 'Forbidden';
     }
@@ -45,14 +45,14 @@ export class TripService {
     return updatedTrip;
   }
 
-  async deleteTrip(id: string, user_email: string) {
+  async deleteTrip(id: string, user_id: string) {
     const trip = await this.tripDal.getTripById(id);
     if (!trip) {
       return 'NotFound';
     }
 
     // Check if user has 'Manager' permission
-    const tripUser = await this.tripDal.findTripUser(trip.id, user_email);
+    const tripUser = await this.tripDal.findTripUser(trip.id, user_id);
 
     if (!tripUser || tripUser.permission_level !== 'Manager') {
       return 'Forbidden';
