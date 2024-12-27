@@ -13,40 +13,76 @@ const asyncHandler = (fn: Function) => {
 
 const tripService = new TripService();
 
-// GET all trips
+// GET all trips with permission check
 tripRouter.get('/', asyncHandler(async (req: Request, res: Response) => {
-  const userId = req.query.userId as string;
+  const { user_id } = req.body; // User ID comes from the request body, not query
 
-  if (!userId) {
-    return res.status(400).json({ message: "User id is required to get trips." });
+  if (!user_id || typeof user_id !== 'string') {
+    return res.status(400).json({ message: "User id is required and must be a valid string." });
   }
+
   try {
-    const trips = await tripService.getTrips(userId);
-    res.status(200).json(trips);
+    // Fetch all trips
+    const trips = await tripService.getTrips(user_id);
+    
+    // Check if user has any permission for each trip
+    const tripsWithPermission = [];
+    for (const trip of trips) {
+      // Assuming that `getUserPermissionForTrip` checks user's permission for a specific trip
+      const permission = await tripService.getUserPermissionForTrip(trip.id, user_id);
+      
+      if (permission) {
+        // User has some permission, add to the result
+        tripsWithPermission.push({ trip, permission });
+      }
+    }
+
+    if (tripsWithPermission.length === 0) {
+      return res.status(404).json({ message: 'You do not have permission for any trips.' });
+    }
+
+    // Respond with trips and their permissions
+    res.status(200).json(tripsWithPermission);
   } catch (err) {
     console.error('Error fetching trips:', err);
     res.status(500).send('Failed to fetch trips');
   }
 }));
 
-// Fetch specific trip by id 
+// Fetch specific trip by id with permission check
 tripRouter.get('/:id', asyncHandler(async (req: Request, res: Response) => {
-  const { id } = req.params;
+  const { id } = req.params; // Get trip ID from the request params
+  const { user_id } = req.body; // Get user ID from the request body
+
   console.log('Fetching trip for id:', id);
+
+  // Check if user_id is provided
+  if (!user_id || typeof user_id !== 'string') {
+    return res.status(400).json({ message: "User id is required and must be a valid string." });
+  }
+
   try {
-      const trip = await tripService.getTripById(id);
+    // Fetch the trip by ID
+    const trip = await tripService.getTripById(id);
 
-      if (!trip) {
-        return res.status(404).json({ message: 'Trip not found' });
-      }
+    if (!trip) {
+      return res.status(404).json({ message: 'Trip not found' });
+    }
 
-      res.status(200).json(trip);
+    // Check if the user has any permission for this trip
+    const permission = await tripService.getUserPermissionForTrip(id, user_id);
+
+    if (!permission) {
+      return res.status(403).json({ message: 'You do not have permission to view this trip' });
+    }
+
+    // If user has permission, send the trip details
+    res.status(200).json(trip);
   } catch (err) {
     console.error('Error fetching trip:', err);
     res.status(500).send('Failed to fetch trip');
   }
-})
-);
+}));
 
 // POST route to create a new trip with permission assignment
 tripRouter.post('/', asyncHandler(async (req: Request, res: Response) => {
