@@ -40,6 +40,8 @@ const Sign: React.FC<SignProps> = ({ inOrUp }) => {
         const { token } = data;
         // Store the token securely (consider using HTTP-only cookies for better security)
         localStorage.setItem('token', token);
+        localStorage.setItem('user_email', email);
+        localStorage.setItem('userId',data.userId);
 
         // Redirect to a protected route, e.g., '/home' or '/dashboard'
         navigate('/home');

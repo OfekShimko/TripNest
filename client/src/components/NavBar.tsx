@@ -1,8 +1,9 @@
 import { NavLink, useNavigate } from 'react-router-dom';
-
 import { PiSuitcase } from "react-icons/pi";
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react';
-import profilePic from '../assets/images/yana.png';
+import { FaRegUserCircle } from "react-icons/fa";
+
+
 
 
 const Navbar = () => {
@@ -17,6 +18,8 @@ const Navbar = () => {
   const handleSignOut = () => {
     // Remove token from localStorage
     localStorage.removeItem('token');
+    localStorage.removeItem('userId');
+    localStorage.removeItem('user_email');
     // Redirect to sign-in page
     navigate('/');
   };
@@ -49,12 +52,8 @@ const Navbar = () => {
                     <MenuButton className="relative flex rounded-full bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800 ">
                       <span className="absolute -inset-1.5" />
                       <span className="sr-only">Open user menu</span>
-                      <img
-                        alt="User Profile"
-                        src={profilePic}
-                        className="w-10 h-10 rounded-full"
-                      />
-                    </MenuButton>
+                      <FaRegUserCircle size={40} color='white'/>
+                    </MenuButton >
                   </div>
                   <MenuItems
 

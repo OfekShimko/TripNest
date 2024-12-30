@@ -35,12 +35,12 @@ export class TripDal {
         return updatedTrip;
     }
 
-    async findTripUser(trip_id: string, user_email: string) {
+    async findTripUser(trip_id: string, user_id: string) {
         const tripUser = await this.tripUserRepository.findOne({
-            where: { trip_id, user_email },
+          where: { trip_id, user_id },
         });
         return tripUser;
-    }
+      }
 
     async deleteTripActivities(trip_id: string, queryRunner: QueryRunner) {
         await queryRunner.manager.delete(TripActivities, { trip_id });
