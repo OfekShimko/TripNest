@@ -15,7 +15,7 @@ const tripService = new TripService();
 
 // GET all trips with permission check
 tripRouter.get('/', asyncHandler(async (req: Request, res: Response) => {
-  const { user_id } = req.body; // User ID comes from the request body, not query
+  const user_id = req.query.userId as string;
 
   if (!user_id || typeof user_id !== 'string') {
     return res.status(400).json({ message: "User id is required and must be a valid string." });
