@@ -2,29 +2,39 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 
+
+
 const AddTripPage = ({ addTripSubmit }) => {
     const [title, setTitle] = useState('');
-    const [type, setType] = useState('Fun');
     const [location, setLocation] = useState('');
     const [description, setDescription] = useState('');
-    const [dates, setDates] = useState('');
-    const [activities,setActivities]=useState(null);
-
-
+    const [fromDate, setFromDate] = useState('');
+    const [toDate, setToDate] = useState('');
 
     const navigate = useNavigate();
 
     const submitForm = (e) => {
         e.preventDefault();
 
+        const formatDate = (date: string | Date) => {
+            const d = new Date(date);
+            return d.toISOString().split('T')[0]; // Extract YYYY-MM-DD part only
+        };
+        const userId = localStorage.getItem('userId');
+        if (!userId) {
+            toast.error('User not logged in.');
+            return; // Stop form submission if user email isn't found
+        }
+
         const newTrip = {
             title,
-            type,
             location,
             description,
-            dates,
-            activities: activities || []
+            from_date: formatDate(fromDate), // Formatted correctly
+            to_date: formatDate(toDate),
+            user_id: userId
         };
+
 
         addTripSubmit(newTrip);
 
@@ -41,25 +51,6 @@ const AddTripPage = ({ addTripSubmit }) => {
                         <h2 className='text-3xl text-cyan-700 text-center font-semibold mb-6'>Create a New Trip</h2>
 
                         <div className='mb-4'>
-                            <label
-                                htmlFor='type'
-                                className='block text-gray-700 font-bold mb-2'
-                            >
-                                Trip Type
-                            </label>
-                            <input
-                                type='text'
-                                id='type'
-                                name='type'
-                                className='border rounded w-full py-2 px-3 mb-2'
-                                placeholder='eg. Sport'
-                                required
-                                value={type}
-                                onChange={(e) => setType(e.target.value)}
-                            />
-                        </div>
-
-                        <div className='mb-4'>
                             <label className='block text-gray-700 font-bold mb-2'>
                                 Trip Name
                             </label>
@@ -68,7 +59,6 @@ const AddTripPage = ({ addTripSubmit }) => {
                                 id='title'
                                 name='title'
                                 className='border rounded w-full py-2 px-3 mb-2'
-                                placeholder='eg. Chilling With Friends'
                                 required
                                 value={title}
                                 onChange={(e) => setTitle(e.target.value)}
@@ -85,7 +75,6 @@ const AddTripPage = ({ addTripSubmit }) => {
                                 id='description'
                                 name='description'
                                 className='border rounded w-full py-2 px-3'
-                                placeholder='What will you do, who are you going with, what is the agenda'
                                 value={description}
                                 onChange={(e) => setDescription(e.target.value)}
                             ></textarea>
@@ -108,17 +97,31 @@ const AddTripPage = ({ addTripSubmit }) => {
                         </div>
                         <div className='mb-4'>
                             <label className='block text-gray-700 font-bold mb-2'>
-                                Dates
+                                Start Date
                             </label>
                             <input
-                                type='text'
-                                id='dates'
-                                name='dates'
+                                type='Date'
+                                id='fromDate'
+                                name='fromDate'
                                 className='border rounded w-full py-2 px-3 mb-2'
-                                placeholder='Travelling Dates'
                                 required
-                                value={dates}
-                                onChange={(e) => setDates(e.target.value)}
+                                value={fromDate}
+                                onChange={(e) => setFromDate(e.target.value)}
+                            />
+                        </div>
+
+                        <div className='mb-4'>
+                            <label className='block text-gray-700 font-bold mb-2'>
+                                End Date
+                            </label>
+                            <input
+                                type='Date'
+                                id='toyDate'
+                                name='toDate'
+                                className='border rounded w-full py-2 px-3 mb-2'
+                                required
+                                value={toDate}
+                                onChange={(e) => setToDate(e.target.value)}
                             />
                         </div>
 

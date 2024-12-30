@@ -7,21 +7,17 @@ import { toast } from 'react-toastify';
 import ActivityListing from "../components/ActivityListing";
 import { useNavigate } from 'react-router-dom';
 
-type Activity = {
-    id: number;
-    title: string;
-    location: string;
-    description: string;
-};
+
 
 type Trip = {
     id: string;
     title: string;
-    type: string;
     description: string;
     location: string;
-    dates: string;
-    activities: { id: string }[];
+    from_date: Date;
+    to_date: Date;
+    activities: TripActivities[];
+    users: TripUsers[];
 };
 
 const TripPage = ({ deleteTrip }) => {
@@ -35,6 +31,7 @@ const TripPage = ({ deleteTrip }) => {
         const confirm = window.confirm(
             'Are you sure you want to delete this listing?'
         );
+        
 
         if (!confirm) return;
 
@@ -45,15 +42,20 @@ const TripPage = ({ deleteTrip }) => {
         navigate('/trips');
     };
 
+    const onEditClick = (tripId: string) => {
+        // Navigating to the edit page for the selected trip
+        navigate(`/trips/edit/${tripId}`);
+      };
+
     useEffect(() => {
         const fetchTripAndActivities = async () => {
             try {
-                const tripRes = await fetch(`/api/trips/${id}`);
+                const tripRes = await fetch(`/api/v1/trips/${id}`);
                 const tripData = await tripRes.json();
                 setTrip(tripData);
 
                 // Fetch activities
-                const activitiesRes = await fetch(`/api/activities`);
+                const activitiesRes = await fetch(`/api/v1/activities`);
                 const activitiesData = await activitiesRes.json();
                 setActivities(activitiesData);
             } catch (error) {
@@ -72,8 +74,10 @@ const TripPage = ({ deleteTrip }) => {
 
     // Filter activities related to the trip
     const tripActivities = activities.filter((activity) =>
-        trip.activities.some((tripActivity) => tripActivity.id === activity.id.toString())
+        trip.activities?.some((tripActivity) => tripActivity.id === activity.id.toString())
     );
+
+
 
     return (
         <>
@@ -93,7 +97,7 @@ const TripPage = ({ deleteTrip }) => {
                     <div className='grid grid-cols-1 md:grid-cols-2 w-full gap-6'>
                         <main>
                             <div className='bg-cyan-100 p-6 rounded-lg shadow-md text-center md:text-left'>
-                                <p className='mb-4'>{trip.dates}</p>
+                                <p className='mb-4'>{`${new Date(trip.from_date).toLocaleDateString()} - ${new Date(trip.to_date).toLocaleDateString()}`}</p>
                                 <h1 className='text-3xl font-bold mb-4'>{trip.title}</h1>
                                 <div className='text-gray-500 mb-4 flex align-middle justify-center md:justify-start'>
                                     <FaMapMarker className='text-cyan-600 mr-1' />
@@ -110,25 +114,36 @@ const TripPage = ({ deleteTrip }) => {
 
                             </div>
 
-                            <div className='bg-cyan-100 p-6 rounded-lg shadow-md mt-6' >
+                            <div className='bg-cyan-100 p-6 rounded-lg shadow-md mt-6'>
                                 <h3 className='text-cyan-700 text-xl font-bold mt-2 mb-2'>Activities</h3>
-                                {tripActivities.map((activity) => (
-                                    <div key={activity.id} className="mb-2">
-                                        <ActivityListing key={activity.id} activity={activity} />
-                                    </div>
-                                ))}
+                                {tripActivities.length > 0 ? (
+                                    tripActivities.map((activity) => (
+                                        <div key={activity.id} className="mb-2">
+                                            <ActivityListing key={activity.id} activity={activity} />
+                                        </div>
+                                    ))
+                                ) : (
+                                    <p>No activities found for this trip.</p>
+                                )}
                             </div>
                         </main>
                         <aside>
                             <div className='bg-cyan-100 p-6 rounded-lg shadow-md '>
                                 <h3 className='text-xl font-bold mb-6'>Manage Trip</h3>
                                 <button
+                                    onClick={() => onEditClick(trip.id)}
+                                    className='bg-teal-700 hover:bg-teal-600 text-white font-bold py-2 px-4 rounded-full w-full focus:outline-none focus:shadow-outline mt-4 block'
+                                >
+                                    Edit Trip
+                                </button>
+                                <button
                                     onClick={() => onDeleteClick(trip.id)}
                                     className='bg-rose-600 hover:bg-rose-500 text-white font-bold py-2 px-4 rounded-full w-full focus:outline-none focus:shadow-outline mt-4 block'
                                 >
                                     Delete Trip
                                 </button>
-                            </div></aside>
+                            </div>
+                        </aside>
 
 
                     </div>

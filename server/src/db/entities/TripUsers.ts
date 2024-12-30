@@ -8,7 +8,7 @@ export class TripUsers {
   trip_id!: string;
 
   @PrimaryColumn()
-  user_email!: string;
+  user_id!: string;
 
   @Column({
     type: 'enum',
@@ -18,10 +18,10 @@ export class TripUsers {
   permission_level!: 'Manager' | 'Editor' | 'Viewer';
 
   @ManyToOne(() => Trip, (trip) => trip.users, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'trip_id' })  // Make sure the join column matches the column name
+  @JoinColumn({ name: 'trip_id' })
   trip!: Trip;
 
   @ManyToOne(() => User, (user) => user.trips, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'user_email' })  // Same for the user_email column
+  @JoinColumn({ name: 'user_id' })
   user!: User;
 }

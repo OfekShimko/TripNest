@@ -13,11 +13,11 @@ export class TripDal {
 
     async getTripsForUser(userId: string): Promise<Trip[]> {
         return this.tripRepository.createQueryBuilder("trip")
-        .leftJoinAndSelect('trip.users', 'tripUsers')
-        .leftJoinAndSelect('tripUsers.user', 'user')
-        .where('user.id = :userId', { userId })
-        .getMany();
-      }
+            .leftJoin('trip.users', 'tripUsers')
+            .leftJoin('tripUsers.user', 'user')
+            .where('user.id = :userId', { userId })
+            .getMany();
+    }
 
     async getTripById(id: string) {
         const trip = await this.tripRepository.findOneBy({ id });
@@ -35,12 +35,12 @@ export class TripDal {
         return updatedTrip;
     }
 
-    async findTripUser(trip_id: string, user_email: string) {
+    async findTripUser(trip_id: string, user_id: string) {
         const tripUser = await this.tripUserRepository.findOne({
-            where: { trip_id, user_email },
+          where: { trip_id, user_id },
         });
         return tripUser;
-    }
+      }
 
     async deleteTripActivities(trip_id: string, queryRunner: QueryRunner) {
         await queryRunner.manager.delete(TripActivities, { trip_id });

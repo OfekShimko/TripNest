@@ -1,13 +1,14 @@
 import { getActivityByXid } from "../../opentripmap";
 import { Trip } from "../../db/entities/Trip";
 import { AppDataSource } from "../../db/database_init";
-import { TripDal, TripUserDal, UnsavedTrip } from "../../db";
+import { TripDal, TripUserDal, UnsavedTrip, UserDal } from "../../db";
 import { TripActivities } from "../../db/entities/TripActivities";
 import { QueryRunner } from "typeorm";
 
 export class TripService {
   tripDal = new TripDal();
   tripUserDal = new TripUserDal();
+  userDal = new UserDal();
 
   async getTrips(userId: string) {
     const trips = await this.tripDal.getTripsForUser(userId);
@@ -20,23 +21,17 @@ export class TripService {
     return trip;
   }
 
-  async createTrip(trip: UnsavedTrip, email: string) {
+  async createTrip(trip: UnsavedTrip, user_id: string) {
     const savedTrip = await this.tripDal.createTrip(trip);
-    await this.tripUserDal.createTripUser(savedTrip, email);
+    // Add the creator as a Manager for the trip
+    await this.tripUserDal.createTripUser(savedTrip, user_id, 'Manager');
     return savedTrip;
   }
 
-  async updateTrip(id: string, updates: Partial<Trip>, user_email: string) {
+  async updateTrip(id: string, updates: Partial<Trip>) {
     const trip = await this.tripDal.getTripById(id);
     if (!trip) {
       return null;
-    }
-
-    // Check if user is associated with the trip and has the correct permission
-    const tripUser = await this.tripDal.findTripUser(id, user_email);
-
-    if (!tripUser || tripUser.permission_level !== 'Manager') {
-      return 'Forbidden';
     }
 
     // Merge updates and save
@@ -45,17 +40,10 @@ export class TripService {
     return updatedTrip;
   }
 
-  async deleteTrip(id: string, user_email: string) {
+  async deleteTrip(id: string) {
     const trip = await this.tripDal.getTripById(id);
     if (!trip) {
       return 'NotFound';
-    }
-
-    // Check if user has 'Manager' permission
-    const tripUser = await this.tripDal.findTripUser(trip.id, user_email);
-
-    if (!tripUser || tripUser.permission_level !== 'Manager') {
-      return 'Forbidden';
     }
 
     // Perform deletion in a transaction
@@ -84,9 +72,27 @@ export class TripService {
     }
   }
 
-  async searchTrips(filters: any) {
+  async searchTrips(filters: any, user_id: string) {
     const trips = await this.tripDal.searchTrips(filters);
-    return trips;
+
+    // Fetch the trips the user has permission to access
+    const permittedTrips = await Promise.all(
+      trips.map(async (trip) => {
+        const tripUser = await this.tripUserDal.findTripUser(trip.id, user_id);
+        return tripUser ? trip : null;
+      })
+    );
+
+    // Filter out trips where the user has no permission
+    return permittedTrips.filter((trip) => trip !== null);
+  }
+
+  async getUserPermissionForTrip(trip_id: string, user_id: string) {
+    const tripUser = await this.tripUserDal.findTripUser(trip_id, user_id);
+    if (!tripUser){
+      return null;
+    }
+    return tripUser.permission_level; // Returns the TripUsers entity or null if not found
   }
 
   async addActivityToTrip(trip_id: string, xid: string) {
@@ -173,4 +179,65 @@ export class TripService {
 
     return 'Success';
   }
+
+  async addPermissionToTrip(trip_id: string, user_email: string, permission_level: 'Editor' | 'Viewer') {
+    // Validate trip existence
+    const trip = await this.tripDal.getTripById(trip_id);
+    if (!trip) {
+      throw new Error("Trip not found");
+    }
+    // Validate user existence
+    const user = await this.userDal.getUserByEmail(user_email);
+    if (!user) {
+      throw new Error("User not found in the system");
+    }
+  
+    // Check if the user already has a permission for the trip
+    const existingTripUser = await this.tripUserDal.findTripUser(trip_id, user.id);
+    if (existingTripUser) {
+      throw new Error(`User already has permission: ${existingTripUser.permission_level}`);
+    }
+  
+    // Add the new permission
+    return await this.tripUserDal.createTripUser(trip, user.id, permission_level);
+  }
+
+  // Change user permission for a specific trip
+  async changeUserPermission(trip_id: string, user_email: string, newPermission: 'Manager' | 'Editor' | 'Viewer') {
+    // Validate trip existence
+    const trip = await this.tripDal.getTripById(trip_id);
+    if (!trip) {
+      throw new Error("Trip not found");
+    }
+    // Validate user existence
+    const user = await this.userDal.getUserByEmail(user_email);
+    if (!user) {
+      throw new Error("User not found in the system");
+    }
+    const tripUser = await this.tripUserDal.findTripUser(trip_id, user.id);
+    if (!tripUser) {
+      throw new Error("This user dont have permissions for this trip");
+    }
+    const result = await this.tripUserDal.updateUserPermission(tripUser, newPermission);
+    
+    return result;
+  }
+
+  // Delete user permission for a specific trip
+async deleteUserPermission(trip_id: string, user_email: string) {
+  // Validate user existence
+  const user = await this.userDal.getUserByEmail(user_email);
+  if (!user) {
+    throw new Error("User not found is the system");
+  }
+  const tripUser = await this.tripUserDal.findTripUser(trip_id, user.id);
+  if (!tripUser) {
+    throw new Error("This user dont have permissions for this trip");
+  }
+  const result = await this.tripUserDal.deleteUserPermission(tripUser);
+
+  return result;
+}
+
+  
 }
