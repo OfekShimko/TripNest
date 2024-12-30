@@ -18,6 +18,7 @@ import TripPage from './pages/TripPage.tsx';
 import AddTripPage from "./pages/AddTripPage.tsx"
 import ActivityPage from './pages/ActivityPage.tsx';
 import TripEditPage from './pages/TripEditpage.tsx';
+import { ActivityCacheProvider } from './components/ActivityCacheContext';
 
 
 type Activity = {
