@@ -52,13 +52,13 @@ tripRouter.get('/', asyncHandler(async (req: Request, res: Response) => {
 // Fetch specific trip by id with permission check
 tripRouter.get('/:id', asyncHandler(async (req: Request, res: Response) => {
   const { id } = req.params; // Get trip ID from the request params
-  const { user_id } = req.body; // Get user ID from the request body
+  const user_id = req.query.userId as string; // Get user ID from the request query
 
   console.log('Fetching trip for id:', id);
 
   // Check if user_id is provided
   if (!user_id || typeof user_id !== 'string') {
-    return res.status(400).json({ message: "User id is required and must be a valid string." });
+    return res.status(400).json({ message: `User id is required and must be a valid string.` });
   }
 
   try {
