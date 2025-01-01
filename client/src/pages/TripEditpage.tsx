@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import Spinner from "../components/Spinner";
 
 type Trip = {
   id: string;
@@ -70,7 +71,7 @@ const TripEditPage = () => {
   };
 
   if (loading) {
-    return <div>Loading...</div>;
+    if (loading) return <Spinner loading={loading} />;
   }
 
   if (!trip) {
