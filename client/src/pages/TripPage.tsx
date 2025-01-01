@@ -49,8 +49,9 @@ const TripPage = ({ deleteTrip }) => {
 
     useEffect(() => {
         const fetchTripAndActivities = async () => {
+            const userId = localStorage.getItem('userId');
             try {
-                const tripRes = await fetch(`/api/v1/trips/${id}`);
+                const tripRes = await fetch(`/api/v1/trips/${id}?userId=${userId}`);
                 const tripData = await tripRes.json();
                 setTrip(tripData);
 
