@@ -20,7 +20,12 @@ type Trip = {
     users: TripUsers[];
 };
 
-const TripPage = ({ deleteTrip }) => {
+// Typing for the deleteTrip prop function
+type TripPageProps = {
+    deleteTrip: (tripId: string) => void;
+};
+
+const TripPage = ({ deleteTrip }: TripPageProps) => {
     const { id } = useParams();
     const [trip, setTrip] = useState<Trip | null>(null);
     const [activities, setActivities] = useState<Activity[]>([]);

@@ -7,22 +7,24 @@ type Trip = {
   title: string;
   description: string;
   location: string;
-  from_date: Date; // This could be a Date string or Date object depending on how you store it
-  to_date: Date;   // Same as from_date
+  from_date: string;
+  to_date: string;
 };
 
-const TripEditPage = ({ updateTripSubmit }: { updateTripSubmit: (trip: Trip) => void }) => {
+const TripEditPage = () => {
   const { id } = useParams(); // Get the trip ID from the URL
   const navigate = useNavigate();
-
+  const userId = localStorage.getItem('userId');
   const [trip, setTrip] = useState<Trip | null>(null); // Set trip state properly
   const [loading, setLoading] = useState(true);
+
 
   // Fetch the trip data to edit
   useEffect(() => {
     const fetchTrip = async () => {
+
       try {
-        const res = await fetch(`/api/v1/trips/${id}`);
+        const res = await fetch(`/api/v1/trips/${id}?userId=${userId}`);
         const data = await res.json();
         setTrip(data);
       } catch (error) {
@@ -48,7 +50,7 @@ const TripEditPage = ({ updateTripSubmit }: { updateTripSubmit: (trip: Trip) => 
     if (!trip) return;
 
     try {
-      const res = await fetch(`/api/v1/trips/${id}`, {
+      const res = await fetch(`/api/v1/trips/${id}?userId=${userId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
