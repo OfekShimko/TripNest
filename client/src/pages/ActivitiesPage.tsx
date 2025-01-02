@@ -78,13 +78,13 @@ const ActivitiesPage = () => {
         </div>
       ) : (
         <>
-          <div className='mb-10 w-full max-w-6xl'>
+          <div className='mb-10 w-full max-w-8xl'>
             <ActivityListings isHome={false} locationQuery='New York' cityName='New York' />
           </div>
-          <div className='mb-10 w-full max-w-6xl'>
+          <div className='mb-10 w-full max-w-8xl'>
             <ActivityListings isHome={false} locationQuery='Washington DC' cityName='Washington DC' />
           </div>
-          <div className='w-full max-w-6xl'>
+          <div className='w-full max-w-8xl'>
             <ActivityListings isHome={false} locationQuery='Los Angeles' cityName='Los Angeles' />
           </div>
         </>
