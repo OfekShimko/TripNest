@@ -20,7 +20,12 @@ type Trip = {
     users: TripUsers[];
 };
 
-const TripPage = ({ deleteTrip }) => {
+// Typing for the deleteTrip prop function
+type TripPageProps = {
+    deleteTrip: (tripId: string) => void;
+};
+
+const TripPage = ({ deleteTrip }: TripPageProps) => {
     const { id } = useParams();
     const [trip, setTrip] = useState<Trip | null>(null);
     const [activities, setActivities] = useState<Activity[]>([]);
@@ -49,8 +54,9 @@ const TripPage = ({ deleteTrip }) => {
 
     useEffect(() => {
         const fetchTripAndActivities = async () => {
+            const userId = localStorage.getItem('userId');
             try {
-                const tripRes = await fetch(`/api/v1/trips/${id}`);
+                const tripRes = await fetch(`/api/v1/trips/${id}?userId=${userId}`);
                 const tripData = await tripRes.json();
                 setTrip(tripData);
 
