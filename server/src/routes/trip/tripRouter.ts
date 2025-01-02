@@ -108,7 +108,8 @@ tripRouter.post('/', asyncHandler(async (req: Request, res: Response) => {
 // PUT /:id
 tripRouter.put('/:id', asyncHandler(async (req: Request, res: Response) => {
   const { id } = req.params;
-  const { user_id, ...updates } = req.body; // separate user_id from other fields
+  const {...updates } = req.body; // separate user_id from other fields
+  const user_id = req.query.userId as string; // Get user ID from the request query
 
   if (!user_id) {
     return res.status(400).json({ message: 'user_id is required to update trip.' });
@@ -134,7 +135,7 @@ tripRouter.put('/:id', asyncHandler(async (req: Request, res: Response) => {
 // DELETE /:id
 tripRouter.delete('/:id', asyncHandler(async (req: Request, res: Response) => {
   const { id } = req.params;
-  const { user_id } = req.body;
+  const user_id = req.query.userId as string; // Get user ID from the request query
 
   if (!user_id) {
     return res.status(400).json({ message: 'user_id is required to delete trip.' });

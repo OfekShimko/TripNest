@@ -20,25 +20,15 @@ import ActivityPage from './pages/ActivityPage.tsx';
 import TripEditPage from './pages/TripEditpage.tsx';
 
 
-type Activity = {
-  id: number;
-  title: string;
-  location: string;
-  description: string;
-};
-
-type Trip = {
-  id: string;
-  title: string;
-  description: string;
-  location: string;
-  from_date: Date;
-  to_date: Date;
-  activities: TripActivities[];
-  users:TripUsers[];
-};
 const App = () => {
-  const addTrip = async (newTrip:Trip) => {
+  const addTrip = async (newTrip: {
+    title: string;
+    location: string;
+    description: string;
+    from_date: string;
+    to_date: string;
+    user_id: string;
+  }): Promise<void> => {
     await fetch('/api/v1/trips', {
       method: 'POST',
       headers: {
@@ -46,29 +36,17 @@ const App = () => {
       },
       body: JSON.stringify(newTrip),
     });
-    return;
   };
+  
     // Delete Trip
     const deleteTrip = async (id:string) => {
-      await fetch(`/api/v1/trips/${id}`, {
+      const userId = localStorage.getItem('userId');
+      await fetch(`/api/v1/trips/${id}?userId=${userId}`, {
         method: 'DELETE',
       });
       return;
     };
 
-    const updateTrip = async (updatedTrip: Trip) => {
-      const response = await fetch(`/api/v1/trips/${updatedTrip.id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(updatedTrip),
-      });
-      if (!response.ok) {
-        throw new Error('Failed to update trip');
-      }
-      return await response.json();
-    };
 
     const addActivityToTrip = async (tripId: string, activityId: string) => {
       const response = await fetch(`/api/v1/trips/${tripId}`);
@@ -122,7 +100,7 @@ const App = () => {
             <Route path="/home" element={<HomePage />} />
             <Route path="/trips" element={<TripsPage />} />
             <Route path="/add-trip" element={<AddTripPage addTripSubmit={addTrip} />} />
-            <Route path="/trips/edit/:id" element={<TripEditPage updateTripSubmit={updateTrip} />} />
+            <Route path="/trips/edit/:id" element={<TripEditPage />} />
             <Route path="/trips/:id" element={<TripPage deleteTrip={deleteTrip} />} />
             <Route path="/activities" element={<ActivitiesPage />} />
             <Route path="/activities/:id" element={<ActivityPage addActivityToTrip={addActivityToTrip} />} />

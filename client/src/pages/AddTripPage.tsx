@@ -2,9 +2,18 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 
+interface AddTripPageProps {
+    addTripSubmit: (trip: {
+        title: string;
+        location: string;
+        description: string;
+        from_date: string;
+        to_date: string;
+        user_id: string;
+    }) => Promise<void>;
+}
 
-
-const AddTripPage = ({ addTripSubmit }) => {
+const AddTripPage: React.FC<AddTripPageProps> = ({ addTripSubmit }) => {
     const [title, setTitle] = useState('');
     const [location, setLocation] = useState('');
     const [description, setDescription] = useState('');
@@ -13,7 +22,7 @@ const AddTripPage = ({ addTripSubmit }) => {
 
     const navigate = useNavigate();
 
-    const submitForm = (e) => {
+    const submitForm = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
         const formatDate = (date: string | Date) => {
