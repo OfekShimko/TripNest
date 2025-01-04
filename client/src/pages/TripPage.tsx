@@ -61,9 +61,9 @@ const TripPage = ({ deleteTrip }: TripPageProps) => {
                 setTrip(tripData);
 
                 // Fetch activities
-                const activitiesRes = await fetch(`/api/v1/activities`);
+                const activitiesRes = await fetch(`/api/v1/trips/${id}/activities`);
                 const activitiesData = await activitiesRes.json();
-                setActivities(activitiesData);
+                setActivities(activitiesData.activities);
             } catch (error) {
                 console.log('Error fetching data', error);
             } finally {
@@ -79,9 +79,11 @@ const TripPage = ({ deleteTrip }: TripPageProps) => {
     if (!trip) return <div>No trip data found!</div>;
 
     // Filter activities related to the trip
-    const tripActivities = activities.filter((activity) =>
-        trip.activities?.some((tripActivity) => tripActivity.id === activity.id.toString())
-    );
+    // const tripActivities = activities.filter((activity) =>
+    //     trip.activities?.some((tripActivity) => tripActivity.id === activity.id.toString())
+    //   );
+
+
 
 
 
@@ -122,11 +124,11 @@ const TripPage = ({ deleteTrip }: TripPageProps) => {
 
                             <div className='bg-cyan-100 p-6 rounded-lg shadow-md mt-6'>
                                 <h3 className='text-cyan-700 text-xl font-bold mt-2 mb-2'>Activities</h3>
-                                {tripActivities.length > 0 ? (
-                                    tripActivities.map((activity) => (
-                                        <div key={activity.id} className="mb-2">
-                                            <ActivityListing key={activity.id} activity={activity} />
-                                        </div>
+                                {activities.length > 0 ? (
+                                    activities.map((activity) => (
+                                    <div key={activity.id} className="mb-2">
+                                        <ActivityListing activity={activity} />
+                                    </div>
                                     ))
                                 ) : (
                                     <p>No activities found for this trip.</p>
