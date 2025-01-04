@@ -1,12 +1,16 @@
 import { useState } from 'react';
 import { FaMapMarker } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
+import activityImage from '../assets/images/activityimage.png';
+
 
 type Activity = {
   id: string;
   title: string;
   location: string;
   description: string;
+  image_url?: string;
+  kinds?: string;
 };
 
 const MAX_LENGTH = 90;
@@ -14,7 +18,6 @@ const MAX_LENGTH = 90;
 const ActivityListing = ({ activity }: { activity: Activity }) => {
   const [showModal, setShowModal] = useState(false);
 
-  // Always show truncated text in the card
   const truncatedDescription =
     activity.description.length > MAX_LENGTH
       ? activity.description.substring(0, MAX_LENGTH) + '...'
@@ -23,9 +26,22 @@ const ActivityListing = ({ activity }: { activity: Activity }) => {
   const openModal = () => setShowModal(true);
   const closeModal = () => setShowModal(false);
 
+  // Decide the image URL once
+  const imageUrl = (activity.image_url && activity.image_url.trim() !== '' && activity.image_url !== 'default_thumbnail_url')
+  ? activity.image_url
+  : activityImage;
+
+
+
   return (
     <>
-      <div className='w-64 h-80 bg-white border border-gray-300 rounded-xl shadow-md relative p-4 flex flex-col justify-between'>
+      <div className='w-80 h-auto bg-white border border-gray-300 rounded-xl shadow-md relative p-4 flex flex-col justify-between'>
+        <img
+          src={imageUrl}
+          alt={activity.title}
+          className='w-full h-32 object-cover rounded-lg mb-3'
+        />
+
         <div className='flex flex-col flex-grow overflow-hidden'>
           <div className='mb-6'>
             <div className='text-gray-800 text-lg font-semibold my-2'>{activity.title}</div>
@@ -62,7 +78,6 @@ const ActivityListing = ({ activity }: { activity: Activity }) => {
         </div>
       </div>
 
-      {/* Modal */}
       {showModal && (
         <div className='fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50'>
           <div className='bg-white w-full max-w-md p-6 rounded-md shadow-lg relative'>

@@ -1,12 +1,15 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import ActivityListing from './ActivityListing';
 import Spinner from './Spinner';
+import { useActivityCache  } from './ActivityCacheContext';
 
 type Activity = {
   id: string;
   title: string;
   location: string;
   description: string;
+  image_url: string;
+  kinds?: string;
 };
 
 interface ActivityListingsProps {
@@ -15,59 +18,155 @@ interface ActivityListingsProps {
   cityName?: string;
 }
 
+
 const ActivityListings = ({ isHome = false, locationQuery, cityName }: ActivityListingsProps) => {
-  const [activities, setactivities] = useState<Activity[]>([]);
+  const [activities, setActivities] = useState<Activity[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const abortControllerRef = useRef<AbortController | null>(null);
+  const lastRequestUrlRef = useRef<string>('');
+  const timeoutRef = useRef<number>();
+  const fetchCache = useRef<Map<string, Activity[]>>(new Map());
+  const [shouldShowLoading, setShouldShowLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const activityCache = useActivityCache();
+
+
+const apiUrl = useMemo(() => {
+  if (isHome) return '/api/v1/activities';
+  return locationQuery && locationQuery.trim() !== ''
+  ? `/api/v1/activities?location=${encodeURIComponent(locationQuery)}`
+  : `/api/v1/activities`;
+ }, [isHome, locationQuery]);
+
+
+ const fetchActivities = async () => {
+  // Check global cache first
+  const cachedActivities = activityCache.getActivities(apiUrl);
+  if (cachedActivities) {
+    setActivities(cachedActivities);
+    setLoading(false);
+    return;
+  }
+
+  // If this URL was just requested, skip
+  if (apiUrl === lastRequestUrlRef.current) {
+    return;
+  }
+
+  lastRequestUrlRef.current = apiUrl;
+  
+  try {
+    const res = await fetch(apiUrl, {
+      signal: abortControllerRef.current?.signal,
+      headers: {
+        'Accept': 'application/json',
+        'Cache-Control': 'public, max-age=300' // Cache successful responses for 5 minutes
+      }
+    });
+
+    if (!res.ok) {
+      const errorText = await res.text();
+      console.error(`Server responded with error: ${errorText}`);
+      throw new Error(`Error fetching data: ${errorText}`);
+    }
+
+    const data = await res.json();
+
+    const mappedActivities: Activity[] = data.map((activity: any) => ({
+      id: activity.xid,
+      title: activity.name,
+      location: locationQuery && locationQuery.trim() !== '' ? locationQuery : cityName || 'New York',
+      description: activity.description || "",
+      image_url: activity.image_url || "",
+      kinds: activity.kinds
+    }));
+
+   // Store in global cache
+   activityCache.setActivities(apiUrl, mappedActivities);
+
+    setActivities(mappedActivities);
+  } catch (error) {
+    // Only log error if it's not an abort error
+    if (!(error instanceof DOMException && error.name === 'AbortError')) {
+      console.error('Error fetching data:', error);
+      setError('Unable to load activities. Please try again.');
+      setActivities(fetchCache.current.get(apiUrl) || []); // Try to use cached data
+    }
+  } finally {
+    setLoading(false);
+  }
+};
+
+
+
 
   useEffect(() => {
-    const fetchactivities = async () => {
-      let apiUrl: string;
-      
-      if (isHome) {
-        apiUrl = '/api/v1/activities';
-      } else {
-        apiUrl = locationQuery && locationQuery.trim() !== ''
-          ? `/api/v1/activities?location=${encodeURIComponent(locationQuery)}`
-          : `/api/v1/activities`;
+    // Clear any pending timeouts
+    if (timeoutRef.current) {
+      window.clearTimeout(timeoutRef.current);
+    }
+
+    // Cancel any ongoing requests
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+
+    // Create new abort controller
+    abortControllerRef.current = new AbortController();
+
+    
+
+    // Debounce the fetch call
+    timeoutRef.current = window.setTimeout(() => {
+      setLoading(true);
+      setCurrentIndex(0);
+      fetchActivities();
+    }, 150); // 150ms debounce
+
+    return () => {
+      if (timeoutRef.current) {
+        window.clearTimeout(timeoutRef.current);
       }
-
-      try {
-        const res = await fetch(apiUrl);
-        let data = await res.json();
-
-        const mappedActivities: Activity[] = data.map((activity: any) => ({
-          id: activity.xid,
-          title: activity.name,
-          location: locationQuery && locationQuery.trim() !== '' ? locationQuery : cityName || 'Tel Aviv',
-          description: activity.description || ""
-        }));
-
-        setactivities(mappedActivities);
-      } catch (error) {
-        console.log('Error fetching data', error);
-      } finally {
-        setLoading(false);
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
       }
     };
-
-    setCurrentIndex(0);
-    fetchactivities();
   }, [locationQuery, isHome, cityName]);
 
-  const activitiesToShow = activities.slice(currentIndex, currentIndex + 4);
 
-  const handlePrev = () => {
+
+
+  useEffect(() => {
+    if (loading) {
+      // Only show loading spinner if loading takes more than 200ms
+      const timer = setTimeout(() => {
+        setShouldShowLoading(true);
+      }, 200);
+      return () => clearTimeout(timer);
+    } else {
+      setShouldShowLoading(false);
+    }
+  }, [loading]);
+
+
+
+  const activitiesToShow = useMemo(() =>
+    activities.slice(currentIndex, currentIndex + 4),
+  [activities, currentIndex]
+  );
+
+  const handlePrev = useCallback(() => {
     if (currentIndex > 0) {
-      setCurrentIndex(currentIndex - 4);
+      setCurrentIndex(prev => prev - 4);
     }
-  };
+  }, [currentIndex]);
 
-  const handleNext = () => {
-    if (currentIndex + 4 < activities.length) {
-      setCurrentIndex(currentIndex + 4);
-    }
-  };
+  const handleNext = useCallback(() => {
+  if (currentIndex + 4 < activities.length) {
+    setCurrentIndex(prev => prev + 4);
+  }
+}, [currentIndex, activities.length]);
 
   return (
     <section className='px-4 py-10 relative'>
@@ -79,10 +178,26 @@ const ActivityListings = ({ isHome = false, locationQuery, cityName }: ActivityL
           </h2>
         )}
 
-        {loading ? (
+        {error && (
+          <div className="text-red-600 text-center py-4 mb-4">
+            <p>{error}</p>
+            <button 
+              onClick={() => {
+                setError(null);
+                setLoading(true);
+                fetchActivities();
+              }}
+              className="mt-2 px-4 py-2 bg-cyan-700 text-white rounded hover:bg-cyan-600"
+            >
+              Try Again
+            </button>
+          </div>
+        )}
+
+        {shouldShowLoading  ? (
           <Spinner loading={loading} />
         ) : (
-          <div className='relative flex items-center justify-center'>
+          <div className='relative flex items-center justify-center px-10'>
             {currentIndex > 0 && (
               <button
                 onClick={handlePrev}
