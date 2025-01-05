@@ -1,16 +1,16 @@
 import { useState, useEffect } from 'react';
 import { FaMapMarker } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
+import SelectTripModal from './DescriptionModal';  // <-- import the new modal
 import activityImage from '../assets/images/activityimage.png';
 
 type Trip = {
   id: string;
   title: string;
-  // add other fields if needed
 };
 
 type Activity = {
-  id: string;
+  id: string;       // "xid" if your server calls it that
   title: string;
   location: string;
   description: string;
@@ -42,7 +42,7 @@ const ActivityListing = ({ activity }: { activity: Activity }) => {
       ? activity.image_url
       : activityImage;
 
-  // Fetch user trips whenever the "Add" button is clicked and the trips modal opens.
+  // Fetch user trips whenever the "Add" button is clicked
   useEffect(() => {
     if (showTripsModal) {
       const userId = localStorage.getItem('userId');
@@ -58,10 +58,11 @@ const ActivityListing = ({ activity }: { activity: Activity }) => {
             throw new Error('Failed to fetch trips');
           }
           const data = await res.json();
-          setTrips(data.map((item: any) => item.trip)); 
-          // ^ Adjust according to your actual trip shape. 
-          //   If your endpoint returns directly an array of Trip objects, 
-          //   you may not need map(...). item.trip might not be needed.
+
+          // Depending on your backend shape:
+          // If it returns [{ trip: {...} }, { trip: {...} }] => do data.map(...)
+          // If it returns [{...}, {...}] => just use data
+          setTrips(data.map((item: any) => item.trip));
         } catch (error) {
           console.error(error);
           alert('Error fetching trips');
@@ -80,14 +81,12 @@ const ActivityListing = ({ activity }: { activity: Activity }) => {
     }
 
     try {
-      // Example: a POST request to an endpoint that handles adding an activity
-      // to a trip. Adjust this according to your backend.
       const res = await fetch(`/api/v1/trips/${selectedTripId}/add-activity`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          Trip_id: selectedTripId,     // <-- Must be a string field
-          xid: activity.id,     // If the server expects `xid`
+          Trip_id: selectedTripId, // or trip_id if the server wants that exact key
+          xid: activity.id,
         }),
       });
 
@@ -95,7 +94,6 @@ const ActivityListing = ({ activity }: { activity: Activity }) => {
         throw new Error('Failed to add activity');
       }
 
-      // On success, close the trips modal and navigate user to that trip's page
       setShowTripsModal(false);
       navigate(`/trips/${selectedTripId}`);
     } catch (error) {
@@ -106,6 +104,7 @@ const ActivityListing = ({ activity }: { activity: Activity }) => {
 
   return (
     <>
+      {/* The Activity card */}
       <div className='w-80 h-auto bg-white border border-gray-300 rounded-xl shadow-md relative p-4 flex flex-col justify-between'>
         <img
           src={imageUrl}
@@ -141,9 +140,6 @@ const ActivityListing = ({ activity }: { activity: Activity }) => {
               <FaMapMarker className='inline text-lg mr-1' />
               {activity.location}
             </div>
-            {/* 
-              Replace "Read More" with "Add" 
-            */}
             <button
               onClick={() => setShowTripsModal(true)}
               className='h-[36px] bg-cyan-700 hover:bg-cyan-600 text-white px-4 py-2 rounded-lg text-center text-sm'
@@ -173,46 +169,14 @@ const ActivityListing = ({ activity }: { activity: Activity }) => {
       )}
 
       {/* MODAL: SELECT TRIP */}
-      {showTripsModal && (
-        <div className='fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50'>
-          <div className='bg-white w-full max-w-md p-6 rounded-md shadow-lg relative'>
-            <h2 className='text-xl font-bold mb-4'>Select a Trip</h2>
-
-            {trips.length === 0 ? (
-              <p>You have no trips yet.</p>
-            ) : (
-              <select
-                className='w-full p-2 border border-gray-300 rounded-lg'
-                value={selectedTripId}
-                onChange={(e) => setSelectedTripId(e.target.value)}
-              >
-                <option value=''>-- Choose a trip --</option>
-                {trips.map((t) => (
-                  <option key={t.id} value={t.id}>
-                    {t.title}
-                  </option>
-                ))}
-              </select>
-            )}
-
-            <div className='flex items-center justify-end mt-6 gap-4'>
-              <button
-                onClick={() => setShowTripsModal(false)}
-                className='text-gray-600 hover:text-gray-800'
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleConfirmAdd}
-                className='bg-cyan-700 hover:bg-cyan-600 text-white px-4 py-2 rounded-lg'
-                disabled={!selectedTripId}
-              >
-                Confirm Add
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <SelectTripModal
+        isOpen={showTripsModal}
+        trips={trips}
+        selectedTripId={selectedTripId}
+        onTripChange={(id: string) => setSelectedTripId(id)}
+        onConfirm={handleConfirmAdd}
+        onCancel={() => setShowTripsModal(false)}
+      />
     </>
   );
 };

@@ -217,9 +217,6 @@ tripRouter.get('/:trip_id/activities', asyncHandler(async (req: Request, res: Re
   const { trip_id } = req.params;
   const user_id = req.query.userId as string;
 
-  // if (!user_id || typeof user_id !== 'string') {
-  //   return res.status(400).json({ message: 'Invalid request, user_id must be a string' });
-  // }
 
   const trip = await tripService.getTripById(trip_id);
 
@@ -240,16 +237,17 @@ tripRouter.get('/:trip_id/activities', asyncHandler(async (req: Request, res: Re
 // Define a route to remove activities from a trip by xid
 tripRouter.delete('/:trip_id/activities', asyncHandler(async (req: Request, res: Response) => {
   const { trip_id } = req.params;  // Get trip_id from route params
-  const { xid, user_id } = req.body;        // Expect xid string to be deleted
+  const { xid } = req.body;        // Expect xid string to be deleted
+  const user_id = req.query.userId as string;
 
   // Check if xid is provided and is a valid string
   if (!xid || typeof xid !== 'string') {
     return res.status(400).json({ message: 'Invalid request, xid must be a string' });
   }
 
-  if (!user_id || typeof user_id !== 'string') {
-    return res.status(400).json({ message: 'Invalid request, user_id must be a string' });
-  }
+  // if (!user_id || typeof user_id !== 'string') {
+  //   return res.status(400).json({ message: 'Invalid request, user_id must be a string' });
+  // }
 
   // Check if the trip exists
   const trip = await tripService.getTripById(trip_id);
