@@ -12,7 +12,7 @@ const asyncHandler = (fn: Function) => {
   };
 };
 
-const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+// const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
 // Define the route to get activities by city
 router.get('/', async (req: Request, res: Response) => {
