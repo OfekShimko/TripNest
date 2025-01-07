@@ -15,7 +15,6 @@ const asyncHandler = (fn: Function) => {
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
 
-//old code
 // Define the route to get activities by city
 router.get('/', async (req: Request, res: Response) => {
   const location = req.query.location as string || 'New York';  // Default to 'New York' if no location is provided
