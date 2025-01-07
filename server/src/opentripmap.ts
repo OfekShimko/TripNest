@@ -45,7 +45,8 @@ export const getActivityByXid = async (xid: string): Promise<ActivityDetails | n
 };
 
 
-  
+const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
   
 export const getActivitiesByCity = async (city: string, type?: string, popularity?: string) => {
     const cityData = cityCoordinates[city];
@@ -75,7 +76,8 @@ export const getActivitiesByCity = async (city: string, type?: string, popularit
         })
       );
   
-  
+      await delay(500);
+
       return activities; // Return the activities array with detailed info
     } catch (error) {
       console.error('Error fetching activities:', error);
