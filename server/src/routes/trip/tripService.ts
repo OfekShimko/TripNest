@@ -198,9 +198,6 @@ export class TripService {
       throw new Error(`User already has permission: ${existingTripUser.permission_level}`);
     }
 
-    console.log("trip : ",trip)
-    console.log("user : ",user)
-  
     // Add the new permission
     return await this.tripUserDal.createTripUser(trip, user.id, permission_level);
   }
@@ -221,6 +218,11 @@ export class TripService {
     if (!tripUser) {
       throw new Error("This user dont have permissions for this trip");
     }
+
+    if(tripUser.permission_level === "Manager"){
+      throw new Error("Cant change Manger permission");
+    }
+
     const result = await this.tripUserDal.updateUserPermission(tripUser, newPermission);
     
     return result;
@@ -237,6 +239,11 @@ export class TripService {
     if (!tripUser) {
       throw new Error("This user dont have permissions for this trip");
     }
+
+    if(tripUser.permission_level === "Manager"){
+      throw new Error("Cant delete Manger user");
+    }
+
     const result = await this.tripUserDal.deleteUserPermission(tripUser);
 
     return result;

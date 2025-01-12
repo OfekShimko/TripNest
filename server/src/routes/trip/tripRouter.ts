@@ -116,9 +116,9 @@ tripRouter.put('/:id', asyncHandler(async (req: Request, res: Response) => {
     return res.status(400).json({ message: 'user_id is required to update trip.' });
   }
   // Check if the user has permission to modify the trip
-  const tripUser = await tripService.getUserPermissionForTrip(id, user_id);
-  const userPermission = tripUser?.permission_level;
-  if (!tripUser || (userPermission !== 'Manager' && userPermission !== 'Editor')) {
+  const userPermission = await tripService.getUserPermissionForTrip(id, user_id);
+
+  if (!userPermission || (userPermission !== 'Manager' && userPermission !== 'Editor')) {
     return res.status(403).json({ message: 'Forbidden: You do not have permission to modify this trip' });
   }
   try {
@@ -144,9 +144,9 @@ tripRouter.delete('/:id', asyncHandler(async (req: Request, res: Response) => {
   }
 
   // Check if the user has permission to modify the trip
-  const tripUser = await tripService.getUserPermissionForTrip(id, user_id);
-  const userPermission = tripUser?.permission_level
-  if (!tripUser || (userPermission !== 'Manager')) {
+  const userPermission = await tripService.getUserPermissionForTrip(id, user_id);
+
+  if (!userPermission || (userPermission !== 'Manager')) {
     return res.status(403).json({ message: 'Forbidden: You do not have permission to modify this trip' });
   }
 
@@ -201,8 +201,8 @@ tripRouter.post('/:trip_id/add-activity', asyncHandler(async (req: Request, res:
   }
 
   // Check if the user has permission to modify the trip
-  const tripUser = await tripService.getUserPermissionForTrip(trip_id, user_id);
-  const userPermission = tripUser?.permission_level
+  const userPermission = await tripService.getUserPermissionForTrip(trip_id, user_id);
+
   if (!userPermission || (userPermission !== 'Manager' && userPermission !== 'Editor')) {
     return res.status(403).json({ message: 'Forbidden: You do not have permission to modify this trip' });
   }
@@ -267,9 +267,9 @@ tripRouter.delete('/:trip_id/activities', asyncHandler(async (req: Request, res:
   }
 
   // Check user's permission for the trip
-  const tripUser = await tripService.getUserPermissionForTrip(trip_id, user_id);
-  const userPermission = tripUser?.permission_level
-  if (!tripUser || (userPermission !== 'Manager' && userPermission !== 'Editor')) {
+  const userPermission = await tripService.getUserPermissionForTrip(trip_id, user_id);
+
+  if (!userPermission || (userPermission !== 'Manager' && userPermission !== 'Editor')) {
     return res.status(403).json({ message: 'Forbidden: User does not have sufficient permissions to remove activities' });
   }
 
@@ -308,9 +308,9 @@ tripRouter.post("/:trip_id/add-permission",asyncHandler(async (req: Request, res
     }
 
     // Check if the user has Manager permission for the trip
-    const tripUser = await tripService.getUserPermissionForTrip(trip_id, user_id);
-    const userPermission = tripUser?.permission_level
-    if (!tripUser || userPermission !== "Manager") {
+    const userPermission = await tripService.getUserPermissionForTrip(trip_id, user_id);
+
+    if (!userPermission || userPermission !== "Manager") {
       return res.status(403).json({ message: "Forbidden: Only users with Manager permission can add permissions to this trip" });
     }
 
@@ -343,9 +343,9 @@ tripRouter.post('/:trip_id/change-permission', asyncHandler(async (req: Request,
   }
 
   // Check if the user has Manager permission for the trip
-  const tripUser = await tripService.getUserPermissionForTrip(trip_id, user_id);
-  const userPermission = tripUser?.permission_level
-  if (!tripUser || userPermission !== "Manager") {
+  const userPermission = await tripService.getUserPermissionForTrip(trip_id, user_id);
+
+  if (!userPermission || userPermission !== "Manager") {
     return res.status(403).json({ message: "Forbidden: Only users with Manager permission can change permissions for this trip" });
   }
 
@@ -376,9 +376,9 @@ tripRouter.delete('/:trip_id/delete-permission', asyncHandler(async (req: Reques
   }
 
   // Check if the user has Manager permission for the trip
-  const tripUser = await tripService.getUserPermissionForTrip(trip_id, user_id);
-  const userPermission = tripUser?.permission_level
-  if (!tripUser || userPermission !== "Manager") {
+  const userPermission = await tripService.getUserPermissionForTrip(trip_id, user_id);
+
+  if (!userPermission || userPermission !== "Manager") {
     return res.status(403).json({ message: "Forbidden: Only users with Manager permission can delete permissions for this trip" });
   }
 
