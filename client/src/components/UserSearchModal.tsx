@@ -11,6 +11,7 @@ const UserSearchModal = ({ tripId, onClose }: UserSearchModalProps) => {
   const [users, setUsers] = useState<any[]>([]);
   const [role, setRole] = useState("Viewer");
   const id = localStorage.getItem("userId");
+  
 
   // Handle search click
   const handleSearch = async () => {
@@ -18,20 +19,21 @@ const UserSearchModal = ({ tripId, onClose }: UserSearchModalProps) => {
       toast.error("Please enter an email to search");
       return;
     }
-
+  
     try {
       const res = await fetch(`/api/v1/trips/${tripId}/search-user`, {
-        method: "POST",
+        method: "POST", // Use POST since the backend is expecting it
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: searchQuery }),
+        body: JSON.stringify({ email: searchQuery }), // Send email in body
       });
-
+  
       const data = await res.json();
       console.log("Fetched users:", data);
-
-      if (res.ok && data.user) {
-        setUsers([{ ...data.user, permission: data.permission }]); // Store permission with user
+  
+      if (res.ok && data.message) {
+        setUsers([data.user]); // Expect the user under 'data.user'
       } else {
+        toast.error(data.user|| "No users found.");
         setUsers([]);
       }
     } catch (error) {
@@ -40,6 +42,7 @@ const UserSearchModal = ({ tripId, onClose }: UserSearchModalProps) => {
       setUsers([]);
     }
   };
+  
 
   // Add user to trip
   const handleAddUser = async (userId: string) => {
@@ -51,13 +54,12 @@ const UserSearchModal = ({ tripId, onClose }: UserSearchModalProps) => {
     }
 
     try {
-      const res = await fetch(`/api/v1/trips/${tripId}/add-permission`, {
+      const res = await fetch(`/api/v1/trips/${tripId}/add-permission?userId=${id}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           email: userEmail,
           permission: role,
-          user_id: id,
         }),
       });
 
@@ -84,13 +86,12 @@ const UserSearchModal = ({ tripId, onClose }: UserSearchModalProps) => {
     }
 
     try {
-      const res = await fetch(`/api/v1/trips/${tripId}/change-permission`, {
+      const res = await fetch(`/api/v1/trips/${tripId}/change-permission?userId=${id}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           email: userEmail,
           new_permission: role,
-          user_id: id,
         }),
       });
 
@@ -117,7 +118,7 @@ const UserSearchModal = ({ tripId, onClose }: UserSearchModalProps) => {
     }
 
     try {
-      const res = await fetch(`/api/v1/trips/${tripId}/delete-permission`, {
+      const res = await fetch(`/api/v1/trips/${tripId}/delete-permission?userId=${id}`, {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -177,7 +178,7 @@ const UserSearchModal = ({ tripId, onClose }: UserSearchModalProps) => {
             {users.map((user: any) => (
               <div key={user.id} className="flex justify-between items-center mb-2 p-2 border-b">
                 <p className="text-sm">
-                  {user.username} ({user.email}) {user.permission}
+                  {user.username} ({user.email}) {user.permission} 
                 </p>
 
                 {/* Permission-based buttons */}

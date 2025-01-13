@@ -7,6 +7,7 @@ import { toast } from 'react-toastify';
 import UserSearchModal from "../components/UserSearchModal";
 import TripActivityListing from '../components/TripActivityListing';
 import { useNavigate } from 'react-router-dom';
+import CollaboratorsList from '../components/CollaboratorsList'
 
 type Trip = {
   id: string;
@@ -17,11 +18,12 @@ type Trip = {
   to_date: Date;
 };
 
-type Activity = {
+type TripActivity = {
   xid: string;
-  title: string;
+  name: string;
   description: string;
-  // Add other fields specific to your activities
+  image_url?: string;
+  // any other fields you get back from the server
 };
 
 type TripPageProps = {
@@ -31,15 +33,15 @@ type TripPageProps = {
 const TripPage = ({ deleteTrip }: TripPageProps) => {
   const { id } = useParams();
   const [trip, setTrip] = useState<Trip | null>(null);
-  const [activities, setActivities] = useState<Activity[]>([]);
+  const [activities, setActivities] = useState<TripActivity[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [userRole, setUserRole] = useState<string>("Viewer"); // Default role
   const navigate = useNavigate();
+  const userId = localStorage.getItem('userId');
 
   useEffect(() => {
     const fetchTripAndActivities = async () => {
-      const userId = localStorage.getItem('userId');
       try {
         // Fetch the trip details including user permission
         const tripRes = await fetch(`/api/v1/trips/${id}?userId=${userId}`);
@@ -53,7 +55,7 @@ const TripPage = ({ deleteTrip }: TripPageProps) => {
         }
 
         // Fetch activities for the trip
-        const activitiesRes = await fetch(`/api/v1/trips/${id}/activities`);
+        const activitiesRes = await fetch(`/api/v1/trips/${id}/activities?userId=${userId}`);
         const activitiesData = await activitiesRes.json();
         setActivities(activitiesData.activities);
       } catch (error) {
@@ -89,10 +91,10 @@ const TripPage = ({ deleteTrip }: TripPageProps) => {
   // Handle activity removal
   const handleRemoveActivity = async (xid: string) => {
     try {
-      const res = await fetch(`/api/v1/trips/${id}/activities`, {
+      const res = await fetch(`/api/v1/trips/${id}/activities?userId=${userId}`, {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ Trip_id: id, xid: xid })
+        body: JSON.stringify({ xid: xid})
       });
 
       if (!res.ok) {
@@ -133,15 +135,11 @@ const TripPage = ({ deleteTrip }: TripPageProps) => {
                 <p className="text-cyan-600">{trip.location}</p>
               </div>
             </div>
-            <div className="bg-cyan-100 p-6 rounded-lg shadow-md text-center md:text-left flex flex-col h-full">
-              <h3 className="text-xl font-bold mb-4">Collaborators</h3>
-              {/* Scrollable Section */}
-            </div>
+            <CollaboratorsList tripId={trip.id} />
             {/* Conditionally render the aside section based on user role */}
             {userRole !== "Viewer" && (
-              <aside className="bg-cyan-100 p-6 rounded-lg shadow-md flex flex-col h-full">
-                <h3 className="text-xl font-bold mb-6">Manage Trip</h3>
-
+              <aside className="bg-cyan-100 p-6 mb-0 rounded-lg shadow-md flex flex-col h-full">
+                <h3 className="text-xl font-bold mb-4">Manage Trip</h3>
                 {/* Conditionally render buttons based on role */}
                 {userRole === "Manager" || userRole === "Editor" ? (
                   <>
@@ -188,7 +186,7 @@ const TripPage = ({ deleteTrip }: TripPageProps) => {
                 <div key={activity.xid} className="mb-4">
                   <TripActivityListing
                     activity={activity}
-                    onRemove={userRole === "Manager" || userRole=== "Editor" ? handleRemoveActivity : undefined}
+                    onRemove={userRole === "Manager" || userRole === "Editor" ? handleRemoveActivity : undefined}
                   />
 
                 </div>
