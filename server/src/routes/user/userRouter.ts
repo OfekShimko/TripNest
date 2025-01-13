@@ -53,3 +53,16 @@ userRouter.post('/resetPassword', async (req: Request, res: Response) => {
     res.status(400).json({ message: err.message });
   }
 });
+
+// Search users
+userRouter.get('/search', async (req: Request, res: Response) => {
+  const { email } = req.body;
+
+  try {
+    const user = await userService.findUser(email);
+    res.status(200).json({ message: user });
+  } catch (err: any) {
+    console.error('Error in search user: ', err);
+    res.status(400).json({ message: err.message });
+  }
+});

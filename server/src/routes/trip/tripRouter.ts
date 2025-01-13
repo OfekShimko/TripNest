@@ -86,7 +86,8 @@ tripRouter.get('/:id', asyncHandler(async (req: Request, res: Response) => {
 
 // POST route to create a new trip with permission assignment
 tripRouter.post('/', asyncHandler(async (req: Request, res: Response) => {
-  const { title, description, location, from_date, to_date, user_id } = req.body;
+  const { title, description, location, from_date, to_date } = req.body;
+  const user_id = req.query.userId as string;
 
   // Validate input
   if (!title || !description || !location || !from_date || !to_date || !user_id) {
@@ -116,6 +117,7 @@ tripRouter.put('/:id', asyncHandler(async (req: Request, res: Response) => {
   }
   // Check if the user has permission to modify the trip
   const userPermission = await tripService.getUserPermissionForTrip(id, user_id);
+
   if (!userPermission || (userPermission !== 'Manager' && userPermission !== 'Editor')) {
     return res.status(403).json({ message: 'Forbidden: You do not have permission to modify this trip' });
   }
@@ -143,6 +145,7 @@ tripRouter.delete('/:id', asyncHandler(async (req: Request, res: Response) => {
 
   // Check if the user has permission to modify the trip
   const userPermission = await tripService.getUserPermissionForTrip(id, user_id);
+
   if (!userPermission || (userPermission !== 'Manager')) {
     return res.status(403).json({ message: 'Forbidden: You do not have permission to modify this trip' });
   }
@@ -165,7 +168,7 @@ tripRouter.delete('/:id', asyncHandler(async (req: Request, res: Response) => {
 // Search trip by title/location/from_date/to_date
 tripRouter.post('/search', asyncHandler(async (req: Request, res: Response) => {
   const { title, location, from_date, to_date } = req.query;
-  const user_id = req.body;
+  const user_id = req.query.userId as string;
   
   if (!user_id) {
     return res.status(400).json({ message: 'Invalid request, user_id is required' });
@@ -193,9 +196,13 @@ tripRouter.post('/:trip_id/add-activity', asyncHandler(async (req: Request, res:
     return res.status(400).json({ message: 'Invalid request, xid must be a string' });
   }
 
+  if (!user_id || typeof user_id !== 'string'){
+    return res.status(400).json({ message: 'Invalid request, user_id must to be a string and in query.param' });
+  }
 
   // Check if the user has permission to modify the trip
   const userPermission = await tripService.getUserPermissionForTrip(trip_id, user_id);
+
   if (!userPermission || (userPermission !== 'Manager' && userPermission !== 'Editor')) {
     return res.status(403).json({ message: 'Forbidden: You do not have permission to modify this trip' });
   }
@@ -217,6 +224,9 @@ tripRouter.get('/:trip_id/activities', asyncHandler(async (req: Request, res: Re
   const { trip_id } = req.params;
   const user_id = req.query.userId as string;
 
+  if (!user_id || typeof user_id !== 'string'){
+    return res.status(400).json({ message: 'Invalid request, user_id must to be a string and in query.param' });
+  }
 
   const trip = await tripService.getTripById(trip_id);
 
@@ -245,9 +255,9 @@ tripRouter.delete('/:trip_id/activities', asyncHandler(async (req: Request, res:
     return res.status(400).json({ message: 'Invalid request, xid must be a string' });
   }
 
-  // if (!user_id || typeof user_id !== 'string') {
-  //   return res.status(400).json({ message: 'Invalid request, user_id must be a string' });
-  // }
+  if (!user_id || typeof user_id !== 'string'){
+    return res.status(400).json({ message: 'Invalid request, user_id must to be a string and in query.param' });
+  }
 
   // Check if the trip exists
   const trip = await tripService.getTripById(trip_id);
@@ -276,53 +286,20 @@ tripRouter.delete('/:trip_id/activities', asyncHandler(async (req: Request, res:
 
 // Define a route to add permissions to users for a trip
 tripRouter.post("/:trip_id/add-permission",asyncHandler(async (req: Request, res: Response) => {
-    const { trip_id } = req.params;
-    const { email, permission, user_id } = req.body;
+  const { trip_id } = req.params;
+  const { email, permission } = req.body;
+  const user_id = req.query.userId as string;
 
-    try {
-      if (!email || !permission || user_id) {
-        return res.status(400).json({ message: 'Invalid request, user_email, permission and user_id are required' });
-      }
-        
-      if (typeof email !== "string") {
-        return res.status(400).json({ message: "Invalid email format" });
-      }
-
-      if (!["Editor", "Viewer"].includes(permission)) {
-        return res.status(400).json({ message: "Only Editor or Viewer roles are allowed" });
-      }
-
-      if (typeof user_id !== "string") {
-        return res.status(400).json({ message: "Invalid user_id format" });
-      }
-
-      // Check if the user has Manager permission for the trip
-      const userPermission = await tripService.getUserPermissionForTrip(trip_id, user_id);
-
-      if (!userPermission || userPermission !== "Manager") {
-        return res.status(403).json({ message: "Forbidden: Only users with Manager permission can add permissions to this trip" });
-      }
-
-      const newPermission = await tripService.addPermissionToTrip(trip_id, email, permission);
-      res.status(201).json({ message: "Permission added successfully", permission: newPermission });
-    } catch (error: any) {
-      res.status(400).json({ message: error.message });
+  try {
+    if (!email || !permission || !user_id) {
+      return res.status(400).json({ message: 'Invalid request, user_email, permission and user_id are required' });
     }
-  }));
-
-  tripRouter.post('/:trip_id/change-permission', asyncHandler(async (req: Request, res: Response) => {
-    const { trip_id } = req.params;
-    const { email, new_permission, user_id } = req.body; // user_email and new_permission are expected in the request body
-  
-    if (!email || !new_permission || user_id) {
-      return res.status(400).json({ message: 'Invalid request, user_email, new_permission and user_id are required' });
-    }
-    
+      
     if (typeof email !== "string") {
       return res.status(400).json({ message: "Invalid email format" });
     }
 
-    if (!["Editor", "Viewer"].includes(new_permission)) {
+    if (!["Editor", "Viewer"].includes(permission)) {
       return res.status(400).json({ message: "Only Editor or Viewer roles are allowed" });
     }
 
@@ -334,46 +311,95 @@ tripRouter.post("/:trip_id/add-permission",asyncHandler(async (req: Request, res
     const userPermission = await tripService.getUserPermissionForTrip(trip_id, user_id);
 
     if (!userPermission || userPermission !== "Manager") {
-      return res.status(403).json({ message: "Forbidden: Only users with Manager permission can change permissions for this trip" });
+      return res.status(403).json({ message: "Forbidden: Only users with Manager permission can add permissions to this trip" });
     }
 
-    const result = await tripService.changeUserPermission(trip_id, email, new_permission);
-  
-    if (result != 'Permission Updated') {
-      return res.status(404).json({ message: result });
-    }
-  
-    return res.status(200).json({ message: result });
+    const newPermission = await tripService.addPermissionToTrip(trip_id, email, permission);
+    res.status(201).json({ message: "Permission added successfully", permission: newPermission });
+  } catch (error: any) {
+    res.status(400).json({ message: error.message });
+  }
   }));
 
-  tripRouter.delete('/:trip_id/delete-permission', asyncHandler(async (req: Request, res: Response) => {
-    const { trip_id } = req.params;
-    const { email, user_id } = req.body; // user_email is expected in the request body
+tripRouter.post('/:trip_id/change-permission', asyncHandler(async (req: Request, res: Response) => {
+  const { trip_id } = req.params;
+  const { email, new_permission } = req.body; // user_email and new_permission are expected in the request body
+  const user_id = req.query.userId as string;
+
+  if (!email || !new_permission || !user_id) {
+    return res.status(400).json({ message: 'Invalid request, user_email, new_permission and user_id are required' });
+  }
   
-    if (!email || !user_id) {
-      return res.status(400).json({ message: 'Invalid request, user_email and user_id are required' });
-    }
+  if (typeof email !== "string") {
+    return res.status(400).json({ message: "Invalid email format" });
+  }
 
-    if (typeof email !== "string") {
-      return res.status(400).json({ message: "Invalid email format" });
-    }
+  if (!["Editor", "Viewer"].includes(new_permission)) {
+    return res.status(400).json({ message: "Only Editor or Viewer roles are allowed" });
+  }
 
-    if (typeof user_id !== "string") {
-      return res.status(400).json({ message: "Invalid user_id format" });
-    }
+  if (typeof user_id !== "string") {
+    return res.status(400).json({ message: "Invalid user_id format" });
+  }
 
-    // Check if the user has Manager permission for the trip
-    const userPermission = await tripService.getUserPermissionForTrip(trip_id, user_id);
+  // Check if the user has Manager permission for the trip
+  const userPermission = await tripService.getUserPermissionForTrip(trip_id, user_id);
 
-    if (!userPermission || userPermission !== "Manager") {
-      return res.status(403).json({ message: "Forbidden: Only users with Manager permission can delete permissions for this trip" });
-    }
+  if (!userPermission || userPermission !== "Manager") {
+    return res.status(403).json({ message: "Forbidden: Only users with Manager permission can change permissions for this trip" });
+  }
 
-    const result = await tripService.deleteUserPermission(trip_id, email);
-  
-    if (result != "User Permission Deleted") {
-      return res.status(404).json({ message: result });
-    }
-  
-    return res.status(200).json({ message: result });
-  }));
+  const result = await tripService.changeUserPermission(trip_id, email, new_permission);
+
+  if (result != 'Permission Updated') {
+    return res.status(404).json({ message: result });
+  }
+
+  return res.status(200).json({ message: result });
+}));
+
+tripRouter.delete('/:trip_id/delete-permission', asyncHandler(async (req: Request, res: Response) => {
+  const { trip_id } = req.params;
+  const { email } = req.body; // user_email is expected in the request body
+  const user_id = req.query.userId as string;
+
+  if (!email || !user_id) {
+    return res.status(400).json({ message: 'Invalid request, user_email and user_id are required' });
+  }
+
+  if (typeof email !== "string") {
+    return res.status(400).json({ message: "Invalid email format" });
+  }
+
+  if (typeof user_id !== "string") {
+    return res.status(400).json({ message: "Invalid user_id format" });
+  }
+
+  // Check if the user has Manager permission for the trip
+  const userPermission = await tripService.getUserPermissionForTrip(trip_id, user_id);
+
+  if (!userPermission || userPermission !== "Manager") {
+    return res.status(403).json({ message: "Forbidden: Only users with Manager permission can delete permissions for this trip" });
+  }
+
+  const result = await tripService.deleteUserPermission(trip_id, email);
+
+  if (result != "User Permission Deleted") {
+    return res.status(404).json({ message: result });
+  }
+
+  return res.status(200).json({ message: result });
+}));
+
+
+tripRouter.get('/:trip_id/permissions', asyncHandler(async (req: Request, res: Response) => {
+  const { trip_id } = req.params;
+
+  const usersPermission = await tripService.getAllUserIdPermissions(trip_id);
+
+  if (!usersPermission) {
+    return res.status(404).json({ message: usersPermission });
+  }
+
+  return res.status(200).json({ message: usersPermission });
+}));

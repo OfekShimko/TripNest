@@ -16,10 +16,11 @@ export class TripUserDal {
 
         const tripUser = this.tripUserRepository.create({
             trip,
-            user_id: user.id, // Correctly reference the user's email
+            user_id: user.id,
             permission_level,
         });
-
+        
+        console.log('Creating trip user with permission:', tripUser); // Add logging to debug
         await this.tripUserRepository.save(tripUser);
     }
 
@@ -30,29 +31,43 @@ export class TripUserDal {
         return tripUser;
     }
 
-  // Update user permission level
-  async updateUserPermission(tripUser: TripUsers, newPermission: 'Manager' | 'Editor' | 'Viewer') {
-    if (newPermission === "Manager")
-        return "Could not change user permission to manager - only to Editor or Viewer";
+    async findTripUsersAndPermissions(trip_id: string) {
+        const tripUsers = await this.tripUserRepository.find({
+            where: { trip_id },
+            relations: ['user'],
+          });
+        
+        return tripUsers.map((tripUser) => ({
+        user_id: tripUser.user.username,
+        permission_level: tripUser.permission_level,
+        user_email: tripUser.user.email,
+        }));
 
-    // Update the permission
-    tripUser.permission_level = newPermission;
-    await this.tripUserRepository.save(tripUser);
+    }
 
-    return 'Permission Updated';
-  }
+    // Update user permission level
+    async updateUserPermission(tripUser: TripUsers, newPermission: 'Manager' | 'Editor' | 'Viewer') {
+        if (newPermission === "Manager")
+            return "Could not change user permission to manager - only to Editor or Viewer";
+
+        // Update the permission
+        tripUser.permission_level = newPermission;
+        await this.tripUserRepository.save(tripUser);
+
+        return 'Permission Updated';
+    }
 
 
-  // Delete user permission for a specific trip
-async deleteUserPermission(tripUser: TripUsers) {
-    if (tripUser.permission_level === "Manager")
-        return "Could not delete the Manager of the trip"
-  
-    // Delete the user permission from the trip
-    await this.tripUserRepository.remove(tripUser);
-  
-    return 'User Permission Deleted';
-  }
+    // Delete user permission for a specific trip
+    async deleteUserPermission(tripUser: TripUsers) {
+        if (tripUser.permission_level === "Manager")
+            return "Could not delete the Manager of the trip"
+    
+        // Delete the user permission from the trip
+        await this.tripUserRepository.remove(tripUser);
+    
+        return 'User Permission Deleted';
+    }
   
 
 }

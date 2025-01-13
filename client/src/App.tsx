@@ -16,10 +16,8 @@ import LogInPage from './pages/LogInPage.tsx';
 import RegisterPage from './pages/RegisterPage.tsx';
 import TripPage from './pages/TripPage.tsx';
 import AddTripPage from "./pages/AddTripPage.tsx"
-import ActivityPage from './pages/ActivityPage.tsx';
 import TripEditPage from './pages/TripEditpage.tsx';
 import { ActivityCacheProvider } from './components/ActivityCacheContext';
-
 
 const App = () => {
   const addTrip = async (newTrip: {
@@ -104,7 +102,6 @@ const App = () => {
             <Route path="/trips/edit/:id" element={<TripEditPage />} />
             <Route path="/trips/:id" element={<TripPage deleteTrip={deleteTrip} />} />
             <Route path="/activities" element={<ActivitiesPage />} />
-            <Route path="/activities/:id" element={<ActivityPage addActivityToTrip={addActivityToTrip} />} />
           </Route>
           {/* Fallback Route */}
           <Route path="*" element={<NotFoundPage />} />

@@ -37,8 +37,8 @@ const ActivityListing = ({ activity }: { activity: Activity }) => {
 
   const imageUrl =
     activity.image_url &&
-    activity.image_url.trim() !== '' &&
-    activity.image_url !== 'default_thumbnail_url'
+      activity.image_url.trim() !== '' &&
+      activity.image_url !== 'default_thumbnail_url'
       ? activity.image_url
       : activityImage;
 
@@ -62,7 +62,13 @@ const ActivityListing = ({ activity }: { activity: Activity }) => {
           // Depending on your backend shape:
           // If it returns [{ trip: {...} }, { trip: {...} }] => do data.map(...)
           // If it returns [{...}, {...}] => just use data
-          setTrips(data.map((item: any) => item.trip));
+          // setTrips(data.map((item: any) => item.trip));
+
+          // Filter trips where permission is "Editor" or "Manager"
+          setTrips(
+            data
+              .filter((item: any) => item.permission === "Editor" || item.permission === "Manager")
+              .map((item: any) => item.trip));
         } catch (error) {
           console.error(error);
           alert('Error fetching trips');
