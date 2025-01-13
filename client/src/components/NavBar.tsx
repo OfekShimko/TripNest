@@ -6,8 +6,6 @@ import { useEffect, useState } from 'react';
 
 const Navbar = () => {
   const [username, setUsername] = useState<string | null>(null);
-  const [users, setUsers] = useState<any[]>([]); // State to store the list of users
-
   const linkClass = ({ isActive }: { isActive: boolean }) =>
     isActive
       ? 'bg-black text-white hover:bg-gray-900 hover:text-white rounded-md px-3 py-2'
@@ -32,7 +30,7 @@ const Navbar = () => {
         const response = await fetch('/api/v1//users'); // Add full URL for backend
         if (response.ok) {
           const usersList = await response.json();
-          setUsers(usersList); // Store the users array in state
+          
 
           // Find the user based on userId from localStorage and set the username
           const user = usersList.find((u: { id: string }) => u.id === userId);
