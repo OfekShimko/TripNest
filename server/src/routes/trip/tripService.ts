@@ -258,5 +258,13 @@ export class TripService {
     return users;
   }
 
+  async searchUserByEmail(email: string) {
+    const user = await this.userDal.getUserByEmail(email);
+    if (!user) {
+      throw new Error("User not found");
+    }
+    return user;
+  }
+
 
 }

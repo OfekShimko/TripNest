@@ -38,7 +38,8 @@ export class TripUserDal {
           });
         
         return tripUsers.map((tripUser) => ({
-        user_id: tripUser.user.username,
+        user_id: tripUser.user.id,
+        user_name: tripUser.user.username,
         permission_level: tripUser.permission_level,
         user_email: tripUser.user.email,
         }));

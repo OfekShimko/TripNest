@@ -27,7 +27,7 @@ const TripEditPage = () => {
       try {
         const res = await fetch(`/api/v1/trips/${id}?userId=${userId}`);
         const data = await res.json();
-        setTrip(data);
+        setTrip(data.trip);
       } catch (error) {
         console.error('Error fetching trip:', error);
       } finally {
