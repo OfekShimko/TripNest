@@ -9,6 +9,19 @@ export class UserService {
     return await this.userDal.getAllUsers();
   }
 
+  public async findUser(email: string): Promise<User> {
+    if (!email) {
+      throw new Error('Email are required');
+    }
+
+    const user = await this.userDal.getUserByEmail(email);
+    if (!user) {
+      throw new Error('User not exists');
+    }
+
+    return user;
+  }
+
   public async signup(email: string, password: string): Promise<{userId: string}> {
     if (!email || !password) {
       throw new Error('Email and password are required');
