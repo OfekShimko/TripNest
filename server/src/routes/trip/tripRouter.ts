@@ -451,7 +451,7 @@ tripRouter.get('/:trip_id/permissions', asyncHandler(async (req: Request, res: R
   const usersPermission = await tripService.getAllUserIdPermissions(trip_id);
 
   if (!usersPermission) {
-    return res.status(404).json({ message: "not found" });
+    return res.status(404).json({ message: usersPermission });
   }
 
   return res.status(200).json({ message: usersPermission });
