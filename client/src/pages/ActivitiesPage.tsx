@@ -4,7 +4,9 @@ import cityCoordinates from '../assets/json/useCoordinates.json';
 
 const ActivitiesPage = () => {
   const cityNames = Object.keys(cityCoordinates);
+
   const [searchLocation, setSearchLocation] = useState('');
+  const [finalQuery, setFinalQuery] = useState('');
   const [activeSearch, setActiveSearch] = useState<string[]>([]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -25,36 +27,54 @@ const ActivitiesPage = () => {
   const handleSuggestionClick = (city: string) => {
     setSearchLocation(city);
     setActiveSearch([]);
+    setFinalQuery(city);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setActiveSearch([]); // Hide suggestions on submit
+    setActiveSearch([]);
+    setFinalQuery(searchLocation);
   };
 
-  const hasSearched = searchLocation.trim().length > 0;
+  const hasSearched = finalQuery.trim().length > 0;
 
   return (
-    <section className='bg-cyan-50 px-4 py-6 flex flex-col items-center'>
-      <form onSubmit={handleSubmit} className='w-[500px] relative mb-6'>
+    <section className="min-h-screen bg-white dark:bg-gray-900 text-black dark:text-white 
+                       px-4 py-6 flex flex-col items-center"
+    >
+      <form onSubmit={handleSubmit} className="w-[500px] relative mb-6">
         <div className="relative">
           <input
             type="search"
             placeholder="Type Here"
-            className="w-full p-4 rounded-full bg-slate-800 text-white focus:outline-none"
+            className="
+              w-full p-4 rounded-full
+              bg-white text-black
+              dark:bg-slate-800 dark:text-white
+              focus:outline-none
+            "
             value={searchLocation}
             onChange={handleInputChange}
           />
           <button
-            type='submit'
-            className='absolute right-0 top-1/2 -translate-y-1/2 p-4 bg-slate-600 rounded-full text-white hover:bg-slate-500 transition'
+            type="submit"
+            className="
+              absolute right-0 top-1/2 -translate-y-1/2 p-4 
+              bg-slate-600 hover:bg-slate-500 
+              dark:bg-slate-700 dark:hover:bg-slate-600
+              text-white rounded-full transition
+            "
           >
             Search
           </button>
         </div>
 
         {activeSearch.length > 0 && (
-          <div className="absolute top-20 p-4 bg-slate-800 text-white w-full rounded-xl left-1/2 -translate-x-1/2 flex flex-col gap-2 z-50">
+          <div className="
+            absolute top-20 p-4 bg-slate-800 dark:bg-slate-700 
+            text-white w-full rounded-xl left-1/2 -translate-x-1/2 
+            flex flex-col gap-2 z-50
+          ">
             {activeSearch.map((city) => (
               <button
                 key={city}
@@ -69,23 +89,35 @@ const ActivitiesPage = () => {
       </form>
 
       {hasSearched ? (
-        <div className='mb-10 w-full max-w-6xl'>
+        <div className="mb-10 w-full max-w-6xl">
           <ActivityListings
             isHome={false}
-            locationQuery={searchLocation}
-            cityName={searchLocation}
+            locationQuery={finalQuery}
+            cityName={finalQuery}
           />
         </div>
       ) : (
         <>
-          <div className='mb-10 w-full max-w-8xl'>
-            <ActivityListings isHome={false} locationQuery='New York' cityName='New York' />
+          <div className="mb-10 w-full max-w-8xl">
+            <ActivityListings
+              isHome={false}
+              locationQuery="New York"
+              cityName="New York"
+            />
           </div>
-          <div className='mb-10 w-full max-w-8xl'>
-            <ActivityListings isHome={false} locationQuery='Washington DC' cityName='Washington DC' />
+          <div className="mb-10 w-full max-w-8xl">
+            <ActivityListings
+              isHome={false}
+              locationQuery="Washington DC"
+              cityName="Washington DC"
+            />
           </div>
-          <div className='w-full max-w-8xl'>
-            <ActivityListings isHome={false} locationQuery='Los Angeles' cityName='Los Angeles' />
+          <div className="w-full max-w-8xl">
+            <ActivityListings
+              isHome={false}
+              locationQuery="Los Angeles"
+              cityName="Los Angeles"
+            />
           </div>
         </>
       )}

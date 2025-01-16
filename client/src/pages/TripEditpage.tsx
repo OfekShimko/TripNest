@@ -13,17 +13,15 @@ type Trip = {
 };
 
 const TripEditPage = () => {
-  const { id } = useParams(); // Get the trip ID from the URL
+  const { id } = useParams();
   const navigate = useNavigate();
   const userId = localStorage.getItem('userId');
-  const [trip, setTrip] = useState<Trip | null>(null); // Set trip state properly
+  const [trip, setTrip] = useState<Trip | null>(null);
   const [loading, setLoading] = useState(true);
-
 
   // Fetch the trip data to edit
   useEffect(() => {
     const fetchTrip = async () => {
-
       try {
         const res = await fetch(`/api/v1/trips/${id}?userId=${userId}`);
         const data = await res.json();
@@ -41,7 +39,7 @@ const TripEditPage = () => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     if (trip) {
-      setTrip({ ...trip, [name]: value });
+      setTrip((prev) => prev && { ...prev, [name]: value });
     }
   };
 
@@ -56,7 +54,7 @@ const TripEditPage = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(trip), // Update the trip with the form data
+        body: JSON.stringify(trip),
       });
 
       if (res.ok) {
@@ -71,51 +69,55 @@ const TripEditPage = () => {
   };
 
   if (loading) {
-    if (loading) return <Spinner loading={loading} />;
+    return <Spinner loading={loading} />;
   }
-
   if (!trip) {
-    return <div>Trip not found.</div>;
+    return <div className="min-h-screen bg-white dark:bg-gray-900 text-black dark:text-white p-6">Trip not found.</div>;
   }
 
   return (
-    <section className="bg-cyan-50">
+    <section className="min-h-screen bg-white dark:bg-gray-900 text-black dark:text-white">
       <div className="container m-auto max-w-2xl py-24">
-        <div className="bg-white px-6 py-8 mb-4 shadow-md rounded-md border m-4 md:m-0">
+        <div className="bg-white dark:bg-gray-800 px-6 py-8 mb-4 shadow-md rounded-md border m-4 md:m-0 dark:border-gray-700">
           <form onSubmit={handleSubmit}>
-            <h2 className="text-3xl text-cyan-700 text-center font-semibold mb-6">Edit Trip</h2>
+            <h2 className="text-3xl text-cyan-700 dark:text-cyan-400 text-center font-semibold mb-6">
+              Edit Trip
+            </h2>
 
             <div className="mb-4">
-              <label className="block text-gray-700 font-bold mb-2">Trip Name</label>
+              <label className="block text-gray-700 dark:text-gray-200 font-bold mb-2">
+                Trip Name
+              </label>
               <input
                 type="text"
-                id="title"
                 name="title"
-                className="border rounded w-full py-2 px-3 mb-2"
+                className="border rounded w-full py-2 px-3 mb-2 dark:bg-gray-700 dark:text-white dark:border-gray-600"
                 required
                 value={trip.title}
-                onChange={handleChange} // Handle change for all inputs
+                onChange={handleChange}
               />
             </div>
 
             <div className="mb-4">
-              <label htmlFor="description" className="block text-gray-700 font-bold mb-2">Description</label>
+              <label className="block text-gray-700 dark:text-gray-200 font-bold mb-2">
+                Description
+              </label>
               <textarea
-                id="description"
                 name="description"
-                className="border rounded w-full py-2 px-3"
+                className="border rounded w-full py-2 px-3 mb-2 dark:bg-gray-700 dark:text-white dark:border-gray-600"
                 value={trip.description}
                 onChange={handleChange}
-              ></textarea>
+              />
             </div>
 
             <div className="mb-4">
-              <label className="block text-gray-700 font-bold mb-2">Location</label>
+              <label className="block text-gray-700 dark:text-gray-200 font-bold mb-2">
+                Location
+              </label>
               <input
                 type="text"
-                id="location"
                 name="location"
-                className="border rounded w-full py-2 px-3 mb-2"
+                className="border rounded w-full py-2 px-3 mb-2 dark:bg-gray-700 dark:text-white dark:border-gray-600"
                 placeholder="Trip Location"
                 required
                 value={trip.location}
@@ -124,12 +126,13 @@ const TripEditPage = () => {
             </div>
 
             <div className="mb-4">
-              <label className="block text-gray-700 font-bold mb-2">Start Date</label>
+              <label className="block text-gray-700 dark:text-gray-200 font-bold mb-2">
+                Start Date
+              </label>
               <input
                 type="date"
-                id="from_date"
                 name="from_date"
-                className="border rounded w-full py-2 px-3 mb-2"
+                className="border rounded w-full py-2 px-3 mb-2 dark:bg-gray-700 dark:text-white dark:border-gray-600"
                 required
                 value={trip.from_date}
                 onChange={handleChange}
@@ -137,12 +140,13 @@ const TripEditPage = () => {
             </div>
 
             <div className="mb-4">
-              <label className="block text-gray-700 font-bold mb-2">End Date</label>
+              <label className="block text-gray-700 dark:text-gray-200 font-bold mb-2">
+                End Date
+              </label>
               <input
                 type="date"
-                id="to_date"
                 name="to_date"
-                className="border rounded w-full py-2 px-3 mb-2"
+                className="border rounded w-full py-2 px-3 mb-2 dark:bg-gray-700 dark:text-white dark:border-gray-600"
                 required
                 value={trip.to_date}
                 onChange={handleChange}
@@ -151,7 +155,7 @@ const TripEditPage = () => {
 
             <div>
               <button
-                className="bg-cyan-700 hover:bg-cyan-600 text-white font-bold py-2 px-4 rounded-full w-full focus:outline-none focus:shadow-outline"
+                className="bg-cyan-700 hover:bg-cyan-600 text-white font-bold py-2 px-4 rounded-full w-full"
                 type="submit"
               >
                 Update Trip
