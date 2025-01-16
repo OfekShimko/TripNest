@@ -1,13 +1,11 @@
 import { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import Spinner from "../components/Spinner";
 import { FaArrowLeft, FaMapMarker } from 'react-icons/fa';
-import { Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import UserSearchModal from "../components/UserSearchModal";
 import TripActivityListing from '../components/TripActivityListing';
-import { useNavigate } from 'react-router-dom';
-import CollaboratorsList from '../components/CollaboratorsList'
+import CollaboratorsList from '../components/CollaboratorsList';
 
 type Trip = {
   id: string;
@@ -23,7 +21,6 @@ type TripActivity = {
   name: string;
   description: string;
   image_url?: string;
-  // any other fields you get back from the server
 };
 
 type TripPageProps = {
@@ -37,6 +34,7 @@ const TripPage = ({ deleteTrip }: TripPageProps) => {
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [userRole, setUserRole] = useState<string>("Viewer"); // Default role
+
   const navigate = useNavigate();
   const userId = localStorage.getItem('userId');
 
@@ -48,10 +46,10 @@ const TripPage = ({ deleteTrip }: TripPageProps) => {
         const tripData = await tripRes.json();
 
         if (tripData.trip) {
-          setTrip(tripData.trip); // Set the trip details
+          setTrip(tripData.trip);
         }
         if (tripData.permission) {
-          setUserRole(tripData.permission); // Set the user role for the trip
+          setUserRole(tripData.permission);
         }
 
         // Fetch activities for the trip
@@ -68,13 +66,23 @@ const TripPage = ({ deleteTrip }: TripPageProps) => {
     fetchTripAndActivities();
   }, [id]);
 
-  if (loading) return <Spinner loading={loading} />;
-  if (!trip) return <div>No trip data found!</div>;
+  if (loading) {
+    return <Spinner loading={loading} />;
+  }
+
+  // If no trip is found
+  if (!trip) {
+    return (
+      <div className="min-h-screen bg-white dark:bg-gray-900 text-black dark:text-white p-6">
+        No trip data found!
+      </div>
+    );
+  }
 
   // Delete trip handler
   const onDeleteClick = (tripId: string) => {
-    const confirm = window.confirm('Are you sure you want to delete this listing?');
-    if (!confirm) return;
+    const confirmDelete = window.confirm('Are you sure you want to delete this listing?');
+    if (!confirmDelete) return;
     deleteTrip(tripId);
     toast.success('Trip deleted successfully');
     navigate('/trips');
@@ -94,7 +102,7 @@ const TripPage = ({ deleteTrip }: TripPageProps) => {
       const res = await fetch(`/api/v1/trips/${id}/activities?userId=${userId}`, {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ xid: xid})
+        body: JSON.stringify({ xid }),
       });
 
       if (!res.ok) {
@@ -108,13 +116,14 @@ const TripPage = ({ deleteTrip }: TripPageProps) => {
   };
 
   return (
-    <>
+
+    <div className="min-h-screen bg-white dark:bg-gray-900 text-black dark:text-white">
       {/* Back to Trips Link */}
       <section>
         <div className="container m-auto py-6 px-6">
           <Link
             to="/trips"
-            className="text-cyan-700 hover:text-cyan-600 flex items-center"
+            className="text-cyan-700 dark:text-cyan-400 hover:text-cyan-600 dark:hover:text-cyan-300 flex items-center"
           >
             <FaArrowLeft className="mr-2" /> Back to Trips
           </Link>
@@ -123,25 +132,37 @@ const TripPage = ({ deleteTrip }: TripPageProps) => {
 
       <section>
         <div className="container m-auto py-10 px-6">
-          <div className={`grid w-full gap-6 items-stretch ${userRole === "Viewer" ? "md:grid-cols-[2fr_1fr]" : "md:grid-cols-[2fr_1fr_1fr]"}`}>
-            <div className="bg-cyan-100 p-6 rounded-lg shadow-md text-center md:text-left flex flex-col h-full">
+          <div
+            className={`grid w-full gap-6 items-stretch ${
+              userRole === "Viewer" ? "md:grid-cols-[2fr_1fr]" : "md:grid-cols-[2fr_1fr_1fr]"
+            }`}
+          >
+            {/* 
+              Left column: add a dark mode background color that approximates
+              'bg-cyan-100' in dark mode (e.g. dark:bg-cyan-900)
+            */}
+            <div className="bg-cyan-100 dark:bg-cyan-900 text-black dark:text-white p-6 rounded-lg shadow-md text-center md:text-left flex flex-col h-full">
               <p className="mb-4">
                 {`${new Date(trip.from_date).toLocaleDateString()} - 
-                      ${new Date(trip.to_date).toLocaleDateString()}`}
+                ${new Date(trip.to_date).toLocaleDateString()}`}
               </p>
               <h1 className="text-3xl font-bold mb-4">{trip.title}</h1>
-              <div className="text-gray-500 mb-4 flex align-middle justify-center md:justify-start">
-                <FaMapMarker className="text-cyan-600 mr-1" />
-                <p className="text-cyan-600">{trip.location}</p>
+              <div className="text-gray-500 dark:text-gray-300 mb-4 flex align-middle justify-center md:justify-start">
+                <FaMapMarker className="text-cyan-600 dark:text-cyan-400 mr-1" />
+                <p className="text-cyan-600 dark:text-cyan-300">{trip.location}</p>
               </div>
             </div>
+
+            {/* Middle: CollaboratorsList */}
             <CollaboratorsList tripId={trip.id} />
-            {/* Conditionally render the aside section based on user role */}
+
+            {/* Conditionally render the aside (right column) based on user role */}
             {userRole !== "Viewer" && (
-              <aside className="bg-cyan-100 p-6 mb-0 rounded-lg shadow-md flex flex-col h-full">
+              <aside className="bg-cyan-100 dark:bg-cyan-900 text-black dark:text-white p-6 mb-0 rounded-lg shadow-md flex flex-col h-full">
                 <h3 className="text-xl font-bold mb-4">Manage Trip</h3>
+
                 {/* Conditionally render buttons based on role */}
-                {userRole === "Manager" || userRole === "Editor" ? (
+                {(userRole === "Manager" || userRole === "Editor") && (
                   <>
                     <button
                       onClick={() => onEditClick(trip.id)}
@@ -149,7 +170,6 @@ const TripPage = ({ deleteTrip }: TripPageProps) => {
                     >
                       Edit Trip
                     </button>
-
                     {/* Manager only buttons */}
                     {userRole === "Manager" && (
                       <>
@@ -168,31 +188,35 @@ const TripPage = ({ deleteTrip }: TripPageProps) => {
                       </>
                     )}
                   </>
-                ) : null}
+                )}
               </aside>
             )}
-
           </div>
 
-          <div className="bg-cyan-100 p-6 rounded-lg shadow-md mt-6">
-            <h3 className="text-cyan-700 text-lg font-bold mb-6">Trip Description</h3>
-            <p className="mb-4">{trip.description}</p>
+          {/* Trip Description */}
+          <div className="bg-cyan-100 dark:bg-cyan-900 text-black dark:text-white p-6 rounded-lg shadow-md mt-6">
+            <h3 className="text-cyan-700 dark:text-cyan-300 text-lg font-bold mb-6">Trip Description</h3>
+            <p className="mb-4 text-gray-700 dark:text-gray-200">{trip.description}</p>
           </div>
 
-          <div className="bg-cyan-100 p-6 rounded-lg shadow-md mt-6 max-h-[1000px] overflow-y-scroll">
-            <h3 className="text-cyan-700 text-xl font-bold mt-2 mb-2">Activities</h3>
+          {/* Activities */}
+          <div className="bg-cyan-100 dark:bg-cyan-900 text-black dark:text-white p-6 rounded-lg shadow-md mt-6 max-h-[1000px] overflow-y-scroll">
+            <h3 className="text-cyan-700 dark:text-cyan-300 text-xl font-bold mt-2 mb-2">Activities</h3>
             {activities.length > 0 ? (
               activities.map((activity) => (
                 <div key={activity.xid} className="mb-4">
                   <TripActivityListing
                     activity={activity}
-                    onRemove={userRole === "Manager" || userRole === "Editor" ? handleRemoveActivity : undefined}
+                    onRemove={
+                      userRole === "Manager" || userRole === "Editor"
+                        ? handleRemoveActivity
+                        : undefined
+                    }
                   />
-
                 </div>
               ))
             ) : (
-              <p>No activities found for this trip.</p>
+              <p className="text-gray-700 dark:text-gray-200">No activities found for this trip.</p>
             )}
           </div>
         </div>
@@ -200,7 +224,7 @@ const TripPage = ({ deleteTrip }: TripPageProps) => {
 
       {/* User Search Modal for managing users */}
       {showModal && <UserSearchModal tripId={id} onClose={() => setShowModal(false)} />}
-    </>
+    </div>
   );
 };
 

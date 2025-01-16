@@ -21,13 +21,15 @@ import { ActivityCacheProvider } from './components/ActivityCacheContext';
 
 const App = () => {
   const userId = localStorage.getItem('userId');
+
+  // Example: AddTrip function
   const addTrip = async (newTrip: {
     title: string;
     location: string;
     description: string;
     from_date: string;
     to_date: string;
-  }): Promise<void> => {
+  }) => {
     await fetch(`/api/v1/trips?userId=${userId}`, {
       method: 'POST',
       headers: {
@@ -36,15 +38,15 @@ const App = () => {
       body: JSON.stringify(newTrip),
     });
   };
-  
-    // Delete Trip
-    const deleteTrip = async (id:string) => {
-      await fetch(`/api/v1/trips/${id}?userId=${userId}`, {
-        method: 'DELETE',
-      });
-      return;
-    };
-  
+
+  // Example: deleteTrip function
+  const deleteTrip = async (id: string) => {
+    await fetch(`/api/v1/trips/${id}?userId=${userId}`, {
+      method: 'DELETE',
+    });
+  };
+
+  // Define router
   const router = createBrowserRouter(
     createRoutesFromElements(
       <>
@@ -52,7 +54,7 @@ const App = () => {
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<LogInPage />} />
         <Route path="/register" element={<RegisterPage />} />
-  
+
         {/* Routes under MainLayout */}
         <Route path="/" element={<MainLayout />}>
           {/* Protected Routes */}
@@ -70,13 +72,18 @@ const App = () => {
       </>
     )
   );
-  
-
 
   return (
     <ActivityCacheProvider>
-      <RouterProvider router={router} />
+      {/* 
+        This container applies light/dark background/text to the entire app.
+        If <html> has class "dark", then Tailwind applies the .dark:bg-gray-900 etc.
+      */}
+      <div className="bg-white dark:bg-gray-900 text-black dark:text-white min-h-screen">
+        <RouterProvider router={router} />
+      </div>
     </ActivityCacheProvider>
   );
 };
+
 export default App;

@@ -11,7 +11,6 @@ const UserSearchModal = ({ tripId, onClose }: UserSearchModalProps) => {
   const [users, setUsers] = useState<any[]>([]);
   const [role, setRole] = useState("Viewer");
   const id = localStorage.getItem("userId");
-  
 
   // Handle search click
   const handleSearch = async () => {
@@ -19,21 +18,22 @@ const UserSearchModal = ({ tripId, onClose }: UserSearchModalProps) => {
       toast.error("Please enter an email to search");
       return;
     }
-  
+
     try {
       const res = await fetch(`/api/v1/trips/${tripId}/search-user`, {
-        method: "POST", // Use POST since the backend is expecting it
+        method: "POST", // Use POST if the backend expects it
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: searchQuery }), // Send email in body
       });
-  
+
       const data = await res.json();
       console.log("Fetched users:", data);
-  
+
       if (res.ok && data.message) {
-        setUsers([data.user]); // Expect the user under 'data.user'
+        // If successful, store the user in the array
+        setUsers([data.user]); 
       } else {
-        toast.error(data.user|| "No users found.");
+        toast.error(data.user || "No users found.");
         setUsers([]);
       }
     } catch (error) {
@@ -42,7 +42,6 @@ const UserSearchModal = ({ tripId, onClose }: UserSearchModalProps) => {
       setUsers([]);
     }
   };
-  
 
   // Add user to trip
   const handleAddUser = async (userId: string) => {
@@ -141,22 +140,41 @@ const UserSearchModal = ({ tripId, onClose }: UserSearchModalProps) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg shadow-lg w-128 p-6">
+    <div className="fixed inset-0 flex items-center justify-center bg-gray-600 bg-opacity-50 z-50">
+      {/* 
+        Main Modal Container 
+        - Light mode: white text on black background 
+        - Dark mode: gray-800 background, white text
+      */}
+      <div className="bg-white dark:bg-gray-800 text-black dark:text-white rounded-lg shadow-lg w-128 p-6">
         <h3 className="text-xl font-bold mb-4">Manage User Permissions</h3>
 
         {/* Input for searching by email */}
         <div className="flex mb-4">
+          {/* 
+            Dual-mode search input:
+            - Light mode: white bg, black text
+            - Dark mode: gray-700 bg, white text
+          */}
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search by user email..."
-            className="w-full p-2 border rounded-md"
+            className="
+              w-full p-2 border rounded-md 
+              bg-white text-black 
+              dark:bg-gray-700 dark:text-white
+            "
           />
           <button
             onClick={handleSearch}
-            className="ml-2 p-2 bg-blue-600 text-white rounded-md"
+            className="
+              ml-2 p-2 rounded-md 
+              bg-blue-600 text-white 
+              hover:bg-blue-500 
+              dark:bg-blue-500 dark:hover:bg-blue-400
+            "
           >
             Search
           </button>
@@ -166,7 +184,11 @@ const UserSearchModal = ({ tripId, onClose }: UserSearchModalProps) => {
         <select
           value={role}
           onChange={(e) => setRole(e.target.value)}
-          className="w-full p-2 border rounded-md mb-4"
+          className="
+            w-full p-2 border rounded-md mb-4 
+            bg-white text-black 
+            dark:bg-gray-700 dark:text-white
+          "
         >
           <option value="Viewer">Viewer</option>
           <option value="Editor">Editor</option>
@@ -176,51 +198,77 @@ const UserSearchModal = ({ tripId, onClose }: UserSearchModalProps) => {
         {Array.isArray(users) && users.length > 0 ? (
           <div className="max-h-64 overflow-y-auto mb-4">
             {users.map((user: any) => (
-              <div key={user.id} className="flex justify-between items-center mb-2 p-2 border-b">
+              <div
+                key={user.id}
+                className="
+                  flex justify-between items-center 
+                  mb-2 p-2 border-b 
+                  border-gray-200 dark:border-gray-600
+                "
+              >
                 <p className="text-sm">
-                  {user.username} ({user.email}) {user.permission} 
+                  {user.username} ({user.email}) {user.permission}
                 </p>
 
                 {/* Permission-based buttons */}
                 {user.permission === null || user.permission === undefined ? (
-                  // Show the "Add" button if no permission
+                  // Show the "Add" button if user doesn't already have permission
                   <button
                     onClick={() => handleAddUser(user.id)}
-                    className="text-blue-600 hover:text-blue-500 px-4 py-1 border rounded-md"
+                    className="
+                      text-blue-600 hover:text-blue-500
+                      dark:text-blue-400 dark:hover:text-blue-300 
+                      px-4 py-1 border rounded-md
+                    "
                   >
                     Add
                   </button>
                 ) : (
                   <div className="flex space-x-2">
-                    {user.permission === "Editor" || user.permission === "Viewer" ? (
+                    {(user.permission === "Editor" ||
+                      user.permission === "Viewer") && (
                       <>
                         <button
                           onClick={() => handleChangePermission(user.id)}
-                          className="text-blue-600 hover:text-blue-500 px-4 py-1 border rounded-md"
+                          className="
+                            text-blue-600 hover:text-blue-500
+                            dark:text-blue-400 dark:hover:text-blue-300 
+                            px-4 py-1 border rounded-md
+                          "
                         >
                           Change Permission
                         </button>
                         <button
                           onClick={() => handleDeletePermission(user.id)}
-                          className="text-red-600 hover:text-red-500 px-4 py-1 border rounded-md"
+                          className="
+                            text-red-600 hover:text-red-500
+                            dark:text-red-400 dark:hover:text-red-300 
+                            px-4 py-1 border rounded-md
+                          "
                         >
                           Delete Permission
                         </button>
                       </>
-                    ) : null}
+                    )}
                   </div>
                 )}
               </div>
             ))}
           </div>
         ) : (
-          <p className="text-gray-500">No users found or no permission available.</p>
+          <p className="text-gray-500 dark:text-gray-400">
+            No users found or no permission available.
+          </p>
         )}
 
         {/* Close button */}
         <button
           onClick={onClose}
-          className="w-full py-2 px-4 bg-gray-600 text-white rounded-md mt-4"
+          className="
+            w-full py-2 px-4 rounded-md mt-4
+            bg-gray-600 text-white hover:bg-gray-500
+            dark:bg-gray-700 dark:hover:bg-gray-600
+          "
         >
           Close
         </button>
