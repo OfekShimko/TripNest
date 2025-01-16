@@ -22,11 +22,12 @@ const MAX_LENGTH = 90;
 
 const ActivityListing = ({ activity }: { activity: Activity }) => {
   const [showDescriptionModal, setShowDescriptionModal] = useState(false);
-
+  const userId = localStorage.getItem('userId');
   // For the "Add" functionality
   const [showTripsModal, setShowTripsModal] = useState(false);
   const [trips, setTrips] = useState<Trip[]>([]);
   const [selectedTripId, setSelectedTripId] = useState<string>('');
+ 
 
   const navigate = useNavigate();
 
@@ -37,15 +38,15 @@ const ActivityListing = ({ activity }: { activity: Activity }) => {
 
   const imageUrl =
     activity.image_url &&
-    activity.image_url.trim() !== '' &&
-    activity.image_url !== 'default_thumbnail_url'
+      activity.image_url.trim() !== '' &&
+      activity.image_url !== 'default_thumbnail_url'
       ? activity.image_url
       : activityImage;
 
   // Fetch user trips whenever the "Add" button is clicked
   useEffect(() => {
     if (showTripsModal) {
-      const userId = localStorage.getItem('userId');
+      
       if (!userId) {
         alert('User is not logged in');
         return;
@@ -62,7 +63,13 @@ const ActivityListing = ({ activity }: { activity: Activity }) => {
           // Depending on your backend shape:
           // If it returns [{ trip: {...} }, { trip: {...} }] => do data.map(...)
           // If it returns [{...}, {...}] => just use data
-          setTrips(data.map((item: any) => item.trip));
+          // setTrips(data.map((item: any) => item.trip));
+
+          // Filter trips where permission is "Editor" or "Manager"
+          setTrips(
+            data
+              .filter((item: any) => item.permission === "Editor" || item.permission === "Manager")
+              .map((item: any) => item.trip));
         } catch (error) {
           console.error(error);
           alert('Error fetching trips');
@@ -81,11 +88,10 @@ const ActivityListing = ({ activity }: { activity: Activity }) => {
     }
 
     try {
-      const res = await fetch(`/api/v1/trips/${selectedTripId}/add-activity`, {
+      const res = await fetch(`/api/v1/trips/${selectedTripId}/add-activity?userId=${userId}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          Trip_id: selectedTripId, // or trip_id if the server wants that exact key
           xid: activity.id,
         }),
       });

@@ -25,7 +25,7 @@ const MAX_LENGTH = 300; // or however many chars you want
 
 const TripActivityListing: React.FC<TripActivityListingProps> = ({ activity, onRemove }) => {
     const [showDescriptionModal, setShowDescriptionModal] = useState(false);
-
+    const userId = localStorage.getItem('userId');
   // Fallback image if none is provided
   const imageUrl =
     activity.image_url &&
@@ -55,7 +55,7 @@ const TripActivityListing: React.FC<TripActivityListingProps> = ({ activity, onR
   // When the modal is opened, fetch the user’s trips
   useEffect(() => {
     if (showTripsModal) {
-      const userId = localStorage.getItem('userId');
+      
       if (!userId) {
         alert('User is not logged in');
         return;
@@ -90,7 +90,7 @@ const TripActivityListing: React.FC<TripActivityListingProps> = ({ activity, onR
     try {
       // POST to your "add-activity" endpoint.
       // If your server expects "trip_id" or "Trip_id", adjust the JSON as needed.
-      const res = await fetch(`/api/v1/trips/${selectedTripId}/add-activity`, {
+      const res = await fetch(`/api/v1/trips/${selectedTripId}/add-activity?userId=${userId}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

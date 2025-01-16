@@ -77,7 +77,10 @@ tripRouter.get('/:id', asyncHandler(async (req: Request, res: Response) => {
     }
 
     // If user has permission, send the trip details
-    res.status(200).json(trip);
+    res.status(200).json({
+      trip,
+      permission,
+    });
   } catch (err) {
     console.error('Error fetching trip:', err);
     res.status(500).send('Failed to fetch trip');
@@ -391,6 +394,56 @@ tripRouter.delete('/:trip_id/delete-permission', asyncHandler(async (req: Reques
   return res.status(200).json({ message: result });
 }));
 
+// Define a route to search users 
+tripRouter.post(
+  "/:trip_id/search-user",
+  asyncHandler(async (req: Request, res: Response) => {
+    const { trip_id } = req.params;
+    const { email } = req.body; // User email for search
+
+    if (!email || typeof email !== "string") {
+      return res.status(400).json({
+        message: "Invalid request, email is required and must be a valid string",
+      });
+    }
+
+    try {
+      // Search for user by email
+      const user = await tripService.searchUserByEmail(email);
+
+      if (!user) {
+        return res.status(404).json({
+          message: `User with email ${email} not found`,
+        });
+      }
+
+      // Get the user's permission level for the specific trip
+      const permissionLevel = await tripService.getUserPermissionForTrip(
+        trip_id,
+        user.id
+      );
+
+      // Combine user data with permission level
+      const response = {
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        permission: permissionLevel || null, // Include the permission level (or null if not found)
+      };
+
+      res.status(200).json({
+        message: "User found",
+        user: response,
+      });
+    } catch (error: any) {
+      console.error("Error searching for user:", error);
+      res.status(500).json({
+        message: "An error occurred while searching for the user.",
+      });
+    }
+  })
+);
+
 
 tripRouter.get('/:trip_id/permissions', asyncHandler(async (req: Request, res: Response) => {
   const { trip_id } = req.params;
@@ -403,3 +456,5 @@ tripRouter.get('/:trip_id/permissions', asyncHandler(async (req: Request, res: R
 
   return res.status(200).json({ message: usersPermission });
 }));
+
+
