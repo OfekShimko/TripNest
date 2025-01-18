@@ -4,6 +4,8 @@ import {
   createRoutesFromElements,
   RouterProvider,
 } from 'react-router-dom';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 import PrivateRoute from './components/PrivateRoute';
 import MainLayout from './layouts/MainLayout.tsx';
@@ -15,21 +17,21 @@ import LandingPage from './pages/LandingPage.tsx';
 import LogInPage from './pages/LogInPage.tsx';
 import RegisterPage from './pages/RegisterPage.tsx';
 import TripPage from './pages/TripPage.tsx';
-import AddTripPage from "./pages/AddTripPage.tsx"
+import AddTripPage from "./pages/AddTripPage.tsx";
 import TripEditPage from './pages/TripEditpage.tsx';
 import { ActivityCacheProvider } from './components/ActivityCacheContext';
 
 const App = () => {
   const userId = localStorage.getItem('userId');
 
-  // Example: AddTrip function
+  // Example: addTrip function
   const addTrip = async (newTrip: {
     title: string;
     location: string;
     description: string;
     from_date: string;
     to_date: string;
-  }) => {
+  }): Promise<void> => {
     await fetch(`/api/v1/trips?userId=${userId}`, {
       method: 'POST',
       headers: {
@@ -38,7 +40,7 @@ const App = () => {
       body: JSON.stringify(newTrip),
     });
   };
-
+  
   // Example: deleteTrip function
   const deleteTrip = async (id: string) => {
     await fetch(`/api/v1/trips/${id}?userId=${userId}`, {
@@ -46,7 +48,6 @@ const App = () => {
     });
   };
 
-  // Define router
   const router = createBrowserRouter(
     createRoutesFromElements(
       <>
@@ -61,11 +62,18 @@ const App = () => {
           <Route element={<PrivateRoute />}>
             <Route path="/home" element={<HomePage />} />
             <Route path="/trips" element={<TripsPage />} />
-            <Route path="/add-trip" element={<AddTripPage addTripSubmit={addTrip} />} />
+            <Route
+              path="/add-trip"
+              element={<AddTripPage addTripSubmit={addTrip} />}
+            />
             <Route path="/trips/edit/:id" element={<TripEditPage />} />
-            <Route path="/trips/:id" element={<TripPage deleteTrip={deleteTrip} />} />
+            <Route
+              path="/trips/:id"
+              element={<TripPage deleteTrip={deleteTrip} />}
+            />
             <Route path="/activities" element={<ActivitiesPage />} />
           </Route>
+
           {/* Fallback Route */}
           <Route path="*" element={<NotFoundPage />} />
         </Route>
@@ -75,13 +83,15 @@ const App = () => {
 
   return (
     <ActivityCacheProvider>
-      {/* 
-        This container applies light/dark background/text to the entire app.
-        If <html> has class "dark", then Tailwind applies the .dark:bg-gray-900 etc.
-      */}
-      <div className="bg-white dark:bg-gray-900 text-black dark:text-white min-h-screen">
-        <RouterProvider router={router} />
-      </div>
+      <RouterProvider router={router} />
+
+      {/* Toast Container for all your toast messages */}
+      <ToastContainer 
+        position="top-center" 
+        autoClose={3000} 
+        hideProgressBar={false}
+        theme="light" 
+      />
     </ActivityCacheProvider>
   );
 };
