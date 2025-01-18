@@ -13,6 +13,7 @@ interface DescriptionModalProps {
   onConfirm: () => void;
   onCancel: () => void;
   modalClassName?: string;
+  noTripsFallback?: React.ReactNode; // New prop to handle fallback when no trips are available
 }
 
 const DescriptionModal: React.FC<DescriptionModalProps> = ({
@@ -22,6 +23,7 @@ const DescriptionModal: React.FC<DescriptionModalProps> = ({
   onTripChange,
   onConfirm,
   onCancel,
+  noTripsFallback, // Destructure the new prop
 }) => {
   if (!isOpen) return null;
 
@@ -31,7 +33,9 @@ const DescriptionModal: React.FC<DescriptionModalProps> = ({
         <h2 className="text-xl font-bold mb-4">Select a Trip</h2>
 
         {trips.length === 0 ? (
-          <p className="text-gray-500 dark:text-gray-300">You have no trips yet.</p>
+          noTripsFallback || (
+            <p className="text-gray-500 dark:text-gray-300">You have no trips yet.</p>
+          )
         ) : (
           <select
             className="w-full p-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-700 text-black dark:text-white"
