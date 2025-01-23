@@ -24,18 +24,23 @@ const AddTripPage: React.FC<AddTripPageProps> = ({ addTripSubmit }) => {
 
   const submitForm = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
+  
     const formatDate = (date: string | Date) => {
       const d = new Date(date);
       return d.toISOString().split('T')[0]; // Extract YYYY-MM-DD
     };
-
+  
     const userId = localStorage.getItem('userId');
     if (!userId) {
       toast.error('User not logged in.');
       return; // Stop form submission if user isn't found
     }
-
+  
+    if (new Date(fromDate) > new Date(toDate)) {
+      toast.error('Please ensure the start date is before the end date.');
+      return; // Stop form submission if date validation fails
+    }
+  
     const newTrip = {
       title,
       location,
@@ -44,11 +49,12 @@ const AddTripPage: React.FC<AddTripPageProps> = ({ addTripSubmit }) => {
       to_date: formatDate(toDate),
       user_id: userId,
     };
-
+  
     addTripSubmit(newTrip);
     toast.success('Trip Added Successfully');
     return navigate('/trips');
   };
+
 
   return (
     <section className="min-h-screen bg-white dark:bg-gray-900 text-black dark:text-white">
