@@ -1,14 +1,18 @@
 import { useState } from 'react';
+import { toast } from 'react-toastify';
 import ActivityListings from '../components/ActivityListings';
-import cityCoordinates from '../assets/json/useCoordinates.json';
+// Import the JSON that has city names/coords
+import cityCoordinates from '../assets/json/usaCoordinates.json';
 
 const ActivitiesPage = () => {
+  // Gather all the known city names
   const cityNames = Object.keys(cityCoordinates);
 
   const [searchLocation, setSearchLocation] = useState('');
   const [finalQuery, setFinalQuery] = useState('');
   const [activeSearch, setActiveSearch] = useState<string[]>([]);
 
+  // Handle typing in the search input
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setSearchLocation(value);
@@ -18,35 +22,59 @@ const ActivitiesPage = () => {
       return;
     }
 
+    // Filter cityNames ignoring case
     const filteredCities = cityNames
       .filter((city) => city.toLowerCase().includes(value.toLowerCase()))
       .slice(0, 8);
     setActiveSearch(filteredCities);
   };
 
+  // When user clicks a suggestion, set that city exactly
   const handleSuggestionClick = (city: string) => {
     setSearchLocation(city);
     setActiveSearch([]);
     setFinalQuery(city);
   };
 
+  // Handle form submission
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setActiveSearch([]);
-    setFinalQuery(searchLocation);
+
+    const typed = searchLocation.trim().toLowerCase();
+    // Attempt to find the EXACT city in our known list
+    const matchedCity = cityNames.find(
+      (city) => city.toLowerCase() === typed
+    );
+
+    if (matchedCity) {
+      // If found, use the EXACT city name from the list
+      setFinalQuery(matchedCity);
+    } else {
+      // Show a toast if city is not found
+      toast.error('City not found. Please choose from suggestions!', {
+        position: 'top-center',
+        autoClose: 3000,
+      });
+    }
   };
 
+  // Check if we have a valid final city to search
   const hasSearched = finalQuery.trim().length > 0;
 
   return (
-    <section className="min-h-screen bg-white dark:bg-gray-900 text-black dark:text-white 
-                       px-4 py-6 flex flex-col items-center"
+    <section
+      className="
+        min-h-screen bg-white dark:bg-gray-900 
+        text-black dark:text-white 
+        px-4 py-6 flex flex-col items-center
+      "
     >
       <form onSubmit={handleSubmit} className="w-[500px] relative mb-6">
         <div className="relative">
           <input
             type="search"
-            placeholder="Type Here"
+            placeholder="Type here"
             className="
               w-full p-4 rounded-full
               bg-white text-black
@@ -70,11 +98,14 @@ const ActivitiesPage = () => {
         </div>
 
         {activeSearch.length > 0 && (
-          <div className="
-            absolute top-20 p-4 bg-slate-800 dark:bg-slate-700 
-            text-white w-full rounded-xl left-1/2 -translate-x-1/2 
-            flex flex-col gap-2 z-50
-          ">
+          <div
+            className="
+              absolute top-20 p-4 bg-slate-800 
+              dark:bg-slate-700 text-white w-full 
+              rounded-xl left-1/2 -translate-x-1/2
+              flex flex-col gap-2 z-50
+            "
+          >
             {activeSearch.map((city) => (
               <button
                 key={city}

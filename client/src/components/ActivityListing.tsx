@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { FaMapMarker } from 'react-icons/fa';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import SelectTripModal from './DescriptionModal'; // or your actual modal component
 import activityImage from '../assets/images/activityimage.png';
 
@@ -10,7 +10,7 @@ type Trip = {
 };
 
 type Activity = {
-  id: string; // or "xid" if your server calls it that
+  id: string;
   title: string;
   location: string;
   description: string;
@@ -23,7 +23,6 @@ const MAX_LENGTH = 90;
 const ActivityListing = ({ activity }: { activity: Activity }) => {
   const [showDescriptionModal, setShowDescriptionModal] = useState(false);
   const [showTripsModal, setShowTripsModal] = useState(false);
-  
   const [trips, setTrips] = useState<Trip[]>([]);
   const [selectedTripId, setSelectedTripId] = useState<string>('');
 
@@ -36,13 +35,10 @@ const ActivityListing = ({ activity }: { activity: Activity }) => {
       : activity.description;
 
   const imageUrl =
-    activity.image_url &&
-    activity.image_url.trim() !== '' &&
-    activity.image_url !== 'default_thumbnail_url'
+    activity.image_url?.trim() && activity.image_url !== 'default_thumbnail_url'
       ? activity.image_url
       : activityImage;
 
-  // Fetch user trips whenever the "Add" button is clicked
   useEffect(() => {
     if (showTripsModal) {
       if (!userId) {
@@ -58,7 +54,6 @@ const ActivityListing = ({ activity }: { activity: Activity }) => {
           }
           const data = await res.json();
 
-          // Filter trips for roles "Editor" or "Manager"
           const filteredTrips = data
             .filter((item: any) => item.permission === 'Editor' || item.permission === 'Manager')
             .map((item: any) => item.trip);
@@ -66,7 +61,6 @@ const ActivityListing = ({ activity }: { activity: Activity }) => {
           setTrips(filteredTrips);
         } catch (error) {
           console.error(error);
-          alert('Error fetching trips');
         }
       };
 
@@ -74,12 +68,12 @@ const ActivityListing = ({ activity }: { activity: Activity }) => {
     }
   }, [showTripsModal, userId]);
 
-  // Add the activity to the selected trip
   const handleConfirmAdd = async () => {
     if (!selectedTripId) {
       alert('Please select a trip!');
       return;
     }
+
     try {
       const res = await fetch(`/api/v1/trips/${selectedTripId}/add-activity?userId=${userId}`, {
         method: 'POST',
@@ -101,7 +95,6 @@ const ActivityListing = ({ activity }: { activity: Activity }) => {
 
   return (
     <>
-      {/* The Activity card */}
       <div
         className="w-80 h-auto bg-white dark:bg-gray-800 text-black dark:text-white 
                    border border-gray-300 dark:border-gray-700 
@@ -151,13 +144,8 @@ const ActivityListing = ({ activity }: { activity: Activity }) => {
         </div>
       </div>
 
-      {/* MODAL: FULL DESCRIPTION */}
       {showDescriptionModal && (
         <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
-          {/* 
-            Here, you could also add dark classes if you want the modal 
-            body to look different in dark mode.
-          */}
           <div className="bg-white dark:bg-gray-800 dark:text-gray-100 w-full max-w-md p-6 rounded-md shadow-lg relative">
             <h2 className="text-xl font-bold mb-4">{activity.title}</h2>
             <p className="mb-6 whitespace-pre-wrap">{activity.description}</p>
@@ -171,7 +159,6 @@ const ActivityListing = ({ activity }: { activity: Activity }) => {
         </div>
       )}
 
-      {/* MODAL: SELECT TRIP */}
       <SelectTripModal
         isOpen={showTripsModal}
         trips={trips}
@@ -179,6 +166,17 @@ const ActivityListing = ({ activity }: { activity: Activity }) => {
         onTripChange={(id: string) => setSelectedTripId(id)}
         onConfirm={handleConfirmAdd}
         onCancel={() => setShowTripsModal(false)}
+        noTripsFallback={
+          <div>
+            <p className="text-gray-700 dark:text-gray-300">No trips found. Create one!</p>
+            <Link
+              to="/add-trip"
+              className="inline-block mt-2 bg-cyan-700 text-white hover:bg-cyan-600 py-2 px-4 rounded-md"
+            >
+              Create a Trip
+            </Link>
+          </div>
+        }
       />
     </>
   );
