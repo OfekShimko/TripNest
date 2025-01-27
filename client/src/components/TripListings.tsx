@@ -16,8 +16,8 @@ type Trip = {
   title: string;
   description: string;
   location: string;
-  from_date: string;  
-  to_date: string;    
+  from_date: Date;  
+  to_date: Date;    
   activities: TripActivity[];
   users: TripUser[];
 };
@@ -39,13 +39,9 @@ const TripListings = ({ isHome }: { isHome: boolean }) => {
         setLoading(false);
         return;
       }
-
-      setLoading(true);
-
       const apiUrl = isHome
         ? `/api/v1/trips?userId=${userId}&_limit=3`
         : `/api/v1/trips?userId=${userId}`;
-
       try {
         const response = await fetch(apiUrl);
 
@@ -54,16 +50,17 @@ const TripListings = ({ isHome }: { isHome: boolean }) => {
         }
 
         const data = await response.json();
-        setTrips(data);
+        if (JSON.stringify(data) !== JSON.stringify(trips)) {
+          setTrips(data);
+        }
       } catch (error) {
         console.error('Error fetching trips:', error);
       } finally {
         setLoading(false);
       }
     };
-
     fetchTrips();
-  }, [isHome]);
+  }, [trips]);
 
   return (
     <section className="px-4 py-10">
