@@ -12,7 +12,7 @@ const UserSearchModal = ({ tripId, onClose }: UserSearchModalProps) => {
   const [role, setRole] = useState("Viewer");
   const id = localStorage.getItem("userId");
 
-  // Handle search click
+  
   const handleSearch = async () => {
     if (!searchQuery) {
       toast.error("Please enter an email to search");
@@ -21,16 +21,16 @@ const UserSearchModal = ({ tripId, onClose }: UserSearchModalProps) => {
 
     try {
       const res = await fetch(`/api/v1/trips/${tripId}/search-user`, {
-        method: "POST", // Use POST if the backend expects it
+        method: "POST", 
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: searchQuery }), // Send email in body
+        body: JSON.stringify({ email: searchQuery }), 
       });
 
       const data = await res.json();
       console.log("Fetched users:", data);
 
       if (res.ok && data.message) {
-        // If successful, store the user in the array
+        
         setUsers([data.user]); 
       } else {
         toast.error(data.user || "No users found.");
@@ -43,7 +43,7 @@ const UserSearchModal = ({ tripId, onClose }: UserSearchModalProps) => {
     }
   };
 
-  // Add user to trip
+  
   const handleAddUser = async (userId: string) => {
     const userEmail = users.find((user) => user.id === userId)?.email;
 
@@ -75,7 +75,7 @@ const UserSearchModal = ({ tripId, onClose }: UserSearchModalProps) => {
     }
   };
 
-  // Change user permission (to either "Editor" or "Viewer")
+  
   const handleChangePermission = async (userId: string) => {
     const userEmail = users.find((user) => user.id === userId)?.email;
 
@@ -107,7 +107,7 @@ const UserSearchModal = ({ tripId, onClose }: UserSearchModalProps) => {
     }
   };
 
-  // Delete user permission
+
   const handleDeletePermission = async (userId: string) => {
     const userEmail = users.find((user) => user.id === userId)?.email;
 
@@ -141,21 +141,10 @@ const UserSearchModal = ({ tripId, onClose }: UserSearchModalProps) => {
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-gray-600 bg-opacity-50 z-50">
-      {/* 
-        Main Modal Container 
-        - Light mode: white text on black background 
-        - Dark mode: gray-800 background, white text
-      */}
       <div className="bg-white dark:bg-gray-800 text-black dark:text-white rounded-lg shadow-lg w-128 p-6">
         <h3 className="text-xl font-bold mb-4">Manage User Permissions</h3>
 
-        {/* Input for searching by email */}
         <div className="flex mb-4">
-          {/* 
-            Dual-mode search input:
-            - Light mode: white bg, black text
-            - Dark mode: gray-700 bg, white text
-          */}
           <input
             type="text"
             value={searchQuery}
@@ -180,7 +169,6 @@ const UserSearchModal = ({ tripId, onClose }: UserSearchModalProps) => {
           </button>
         </div>
 
-        {/* Dropdown for selecting roles */}
         <select
           value={role}
           onChange={(e) => setRole(e.target.value)}
@@ -194,7 +182,6 @@ const UserSearchModal = ({ tripId, onClose }: UserSearchModalProps) => {
           <option value="Editor">Editor</option>
         </select>
 
-        {/* Users list */}
         {Array.isArray(users) && users.length > 0 ? (
           <div className="max-h-64 overflow-y-auto mb-4">
             {users.map((user: any) => (
@@ -210,9 +197,7 @@ const UserSearchModal = ({ tripId, onClose }: UserSearchModalProps) => {
                   {user.username} ({user.email}) {user.permission}
                 </p>
 
-                {/* Permission-based buttons */}
                 {user.permission === null || user.permission === undefined ? (
-                  // Show the "Add" button if user doesn't already have permission
                   <button
                     onClick={() => handleAddUser(user.id)}
                     className="
@@ -261,7 +246,6 @@ const UserSearchModal = ({ tripId, onClose }: UserSearchModalProps) => {
           </p>
         )}
 
-        {/* Close button */}
         <button
           onClick={onClose}
           className="

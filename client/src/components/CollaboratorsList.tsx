@@ -42,10 +42,10 @@ const CollaboratorsList = ({ tripId }: { tripId: string }) => {
     return <p className="text-red-600 dark:text-red-400">{error}</p>;
   }
 
-  // Get the current user's ID from localStorage
+  
   const currentUserId = localStorage.getItem('userId');
 
-  // Sort collaborators so the current user appears first
+  
   const sortedCollaborators = [...collaborators].sort((a, b) => {
     if (a.user_id === currentUserId) return -1;
     if (b.user_id === currentUserId) return 1;

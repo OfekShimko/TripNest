@@ -14,10 +14,10 @@ const Sign: React.FC<SignProps> = ({ inOrUp }) => {
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault(); // Prevent the default form submission behavior
-    setErrorMessage(''); // Reset any previous error messages
+    e.preventDefault(); 
+    setErrorMessage(''); 
 
-    // Basic validation
+    
     if (!email || !password) {
       setErrorMessage('Email and password are required.');
       return;
@@ -38,15 +38,15 @@ const Sign: React.FC<SignProps> = ({ inOrUp }) => {
 
       if (response.ok) {
         const { token } = data;
-        // Store the token securely (consider using HTTP-only cookies for better security)
+        
         localStorage.setItem('token', token);
         localStorage.setItem('user_email', email);
         localStorage.setItem('userId',data.userId);
 
-        // Redirect to a protected route, e.g., '/home' or '/dashboard'
+        
         navigate('/home');
       } else {
-        // Handle server-side errors
+        
         setErrorMessage(data.message || `Sign ${inOrUp} failed. Please try again.`);
         console.error(`Error during sign ${inOrUp}:`, data.message);
       }

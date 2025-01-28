@@ -22,7 +22,7 @@ const Navbar = () => {
     navigate('/');
   };
 
-  // Check and set stored theme preference
+  
   useEffect(() => {
     const storedTheme = localStorage.getItem('theme');
     if (storedTheme === 'dark') {
@@ -33,7 +33,7 @@ const Navbar = () => {
     }
   }, []);
 
-  // Toggle <html> class + localStorage whenever isDark changes
+  
   useEffect(() => {
     if (isDark) {
       document.documentElement.classList.add('dark');
@@ -95,7 +95,7 @@ const Navbar = () => {
                   Activities
                 </NavLink>
 
-                {/* Dark Mode Toggle Button */}
+                
                 <button
                   type="button"
                   onClick={handleToggleDarkMode}
@@ -104,7 +104,7 @@ const Navbar = () => {
                   {isDark ? 'Light Mode' : 'Dark Mode'}
                 </button>
 
-                {/* User Menu */}
+                
                 <Menu as="div" className="relative ml-3">
                   <div>
                     <MenuButton className="relative flex rounded-full bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800">
@@ -114,11 +114,7 @@ const Navbar = () => {
                     </MenuButton>
                   </div>
 
-                  {/* 
-                    Add dark classes to the popup:
-                    - "dark:bg-gray-700" for background
-                    - "dark:text-gray-200" for text color
-                  */}
+                
                   <MenuItems
                     className="absolute right-0 z-10 mt-2 w-48 origin-top-right 
                                rounded-md bg-white dark:bg-gray-700 

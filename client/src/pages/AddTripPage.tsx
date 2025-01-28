@@ -27,13 +27,13 @@ const AddTripPage: React.FC<AddTripPageProps> = ({ addTripSubmit }) => {
 
     const formatDate = (date: string | Date) => {
       const d = new Date(date);
-      return d.toISOString().split('T')[0]; // Extract YYYY-MM-DD
+      return d.toISOString().split('T')[0]; 
     };
 
     const userId = localStorage.getItem('userId');
     if (!userId) {
       toast.error('User not logged in.');
-      return; // Stop form submission if user isn't found
+      return; 
     }
 
     const newTrip = {
@@ -53,7 +53,6 @@ const AddTripPage: React.FC<AddTripPageProps> = ({ addTripSubmit }) => {
   return (
     <section className="min-h-screen bg-white dark:bg-gray-900 text-black dark:text-white">
       <div className="container m-auto max-w-2xl py-24">
-        {/* Form container with some dark-mode-ready classes */}
         <div className="bg-white dark:bg-gray-800 dark:text-gray-100 px-6 py-8 mb-4 shadow-md rounded-md border border-gray-200 dark:border-gray-700 m-4 md:m-0">
           <form onSubmit={submitForm}>
             <h2 className="text-3xl text-cyan-700 dark:text-cyan-400 text-center font-semibold mb-6">
