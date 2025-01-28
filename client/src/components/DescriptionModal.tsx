@@ -13,7 +13,7 @@ interface DescriptionModalProps {
   onConfirm: () => void;
   onCancel: () => void;
   modalClassName?: string;
-  noTripsFallback?: React.ReactNode; // New prop to handle fallback when no trips are available
+  noTripsFallback?: React.ReactNode; 
 }
 
 const DescriptionModal: React.FC<DescriptionModalProps> = ({
@@ -23,7 +23,7 @@ const DescriptionModal: React.FC<DescriptionModalProps> = ({
   onTripChange,
   onConfirm,
   onCancel,
-  noTripsFallback, // Destructure the new prop
+  noTripsFallback, 
 }) => {
   if (!isOpen) return null;
 
