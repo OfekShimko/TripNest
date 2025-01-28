@@ -3,11 +3,9 @@ import { FaMapMarker } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 
 type TripUsers = {
-  // define whatever fields you expect in 'users'
 };
 
 type TripActivities = {
-  // define whatever fields you expect in 'activities'
 };
 
 type Trip = {

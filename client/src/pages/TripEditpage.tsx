@@ -19,7 +19,6 @@ const TripEditPage = () => {
   const [trip, setTrip] = useState<Trip | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Fetch the trip data to edit
   useEffect(() => {
     const fetchTrip = async () => {
       try {
@@ -35,7 +34,7 @@ const TripEditPage = () => {
     fetchTrip();
   }, [id]);
 
-  // Handle form input changes
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     if (trip) {
@@ -43,7 +42,6 @@ const TripEditPage = () => {
     }
   };
 
-  // Handle the submit event
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     if (!trip) return;

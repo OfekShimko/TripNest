@@ -38,7 +38,6 @@ const ActivityListings = ({ isHome = false, locationQuery, cityName }: ActivityL
   }, [isHome, locationQuery]);
 
   const fetchActivities = async () => {
-    // Check global cache first
     const cachedActivities = activityCache.getActivities(apiUrl);
     if (cachedActivities) {
       setActivities(cachedActivities);
@@ -46,7 +45,7 @@ const ActivityListings = ({ isHome = false, locationQuery, cityName }: ActivityL
       return;
     }
 
-    // If this URL was just requested, skip
+
     if (apiUrl === lastRequestUrlRef.current) {
       return;
     }
@@ -82,12 +81,11 @@ const ActivityListings = ({ isHome = false, locationQuery, cityName }: ActivityL
         kinds: activity.kinds,
       }));
 
-      // Store in global cache
+
       activityCache.setActivities(apiUrl, mappedActivities);
 
       setActivities(mappedActivities);
     } catch (error) {
-      // Only log error if it's not an abort error
       if (!(error instanceof DOMException && error.name === 'AbortError')) {
         console.error('Error fetching data:', error);
         setError('Unable to load activities. Please try again.');
@@ -99,25 +97,22 @@ const ActivityListings = ({ isHome = false, locationQuery, cityName }: ActivityL
   };
 
   useEffect(() => {
-    // Clear any pending timeouts
+
     if (timeoutRef.current) {
       window.clearTimeout(timeoutRef.current);
     }
 
-    // Cancel any ongoing requests
     if (abortControllerRef.current) {
       abortControllerRef.current.abort();
     }
 
-    // Create new abort controller
     abortControllerRef.current = new AbortController();
 
-    // Debounce the fetch call
     timeoutRef.current = window.setTimeout(() => {
       setLoading(true);
       setCurrentIndex(0);
       fetchActivities();
-    }, 150); // 150ms debounce
+    }, 150);
 
     return () => {
       if (timeoutRef.current) {
@@ -131,7 +126,6 @@ const ActivityListings = ({ isHome = false, locationQuery, cityName }: ActivityL
 
   useEffect(() => {
     if (loading) {
-      // Only show loading spinner if loading takes more than 200ms
       const timer = setTimeout(() => {
         setShouldShowLoading(true);
       }, 200);

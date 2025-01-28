@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { FaMapMarker } from 'react-icons/fa';
 import { useNavigate, Link } from 'react-router-dom';
-import SelectTripModal from './DescriptionModal'; // or your actual modal component
+import SelectTripModal from './DescriptionModal'; 
 import activityImage from '../assets/images/activityimage.png';
 
 type Trip = {

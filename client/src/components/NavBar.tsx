@@ -22,7 +22,7 @@ const Navbar = () => {
     navigate('/');
   };
 
-  // Check and set stored theme preference
+
   useEffect(() => {
     const storedTheme = localStorage.getItem('theme');
     if (storedTheme === 'dark') {
@@ -33,7 +33,7 @@ const Navbar = () => {
     }
   }, []);
 
-  // Toggle <html> class + localStorage whenever isDark changes
+
   useEffect(() => {
     if (isDark) {
       document.documentElement.classList.add('dark');

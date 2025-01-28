@@ -33,7 +33,7 @@ const TripPage = ({ deleteTrip }: TripPageProps) => {
   const [activities, setActivities] = useState<TripActivity[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
-  const [userRole, setUserRole] = useState<string>("Viewer"); // Default role
+  const [userRole, setUserRole] = useState<string>("Viewer"); 
 
   const navigate = useNavigate();
   const userId = localStorage.getItem('userId');
@@ -41,7 +41,6 @@ const TripPage = ({ deleteTrip }: TripPageProps) => {
   useEffect(() => {
     const fetchTripAndActivities = async () => {
       try {
-        // Fetch the trip details including user permission
         const tripRes = await fetch(`/api/v1/trips/${id}?userId=${userId}`);
         const tripData = await tripRes.json();
 
@@ -52,7 +51,6 @@ const TripPage = ({ deleteTrip }: TripPageProps) => {
           setUserRole(tripData.permission);
         }
 
-        // Fetch activities for the trip
         const activitiesRes = await fetch(`/api/v1/trips/${id}/activities?userId=${userId}`);
         const activitiesData = await activitiesRes.json();
         setActivities(activitiesData.activities);
@@ -70,7 +68,6 @@ const TripPage = ({ deleteTrip }: TripPageProps) => {
     return <Spinner loading={loading} />;
   }
 
-  // If no trip is found
   if (!trip) {
     return (
       <div className="min-h-screen bg-white dark:bg-gray-900 text-black dark:text-white p-6">
@@ -79,7 +76,6 @@ const TripPage = ({ deleteTrip }: TripPageProps) => {
     );
   }
 
-  // Delete trip handler
   const onDeleteClick = (tripId: string) => {
     const confirmDelete = window.confirm('Are you sure you want to delete this listing?');
     if (!confirmDelete) return;
@@ -96,7 +92,6 @@ const TripPage = ({ deleteTrip }: TripPageProps) => {
     setShowModal(true);
   };
 
-  // Handle activity removal
   const handleRemoveActivity = async (xid: string) => {
     try {
       const res = await fetch(`/api/v1/trips/${id}/activities?userId=${userId}`, {
@@ -118,7 +113,6 @@ const TripPage = ({ deleteTrip }: TripPageProps) => {
   return (
 
     <div className="min-h-screen bg-white dark:bg-gray-900 text-black dark:text-white">
-      {/* Back to Trips Link */}
       <section>
         <div className="container m-auto py-6 px-6">
           <Link
@@ -137,10 +131,6 @@ const TripPage = ({ deleteTrip }: TripPageProps) => {
               userRole === "Viewer" ? "md:grid-cols-[2fr_1fr]" : "md:grid-cols-[2fr_1fr_1fr]"
             }`}
           >
-            {/* 
-              Left column: add a dark mode background color that approximates
-              'bg-cyan-100' in dark mode (e.g. dark:bg-cyan-900)
-            */}
             <div className="bg-cyan-100 dark:bg-cyan-900 text-black dark:text-white p-6 rounded-lg shadow-md text-center md:text-left flex flex-col h-full">
               <p className="mb-4">
                 {`${new Date(trip.from_date).toLocaleDateString()} - 
@@ -153,15 +143,13 @@ const TripPage = ({ deleteTrip }: TripPageProps) => {
               </div>
             </div>
 
-            {/* Middle: CollaboratorsList */}
+
             <CollaboratorsList tripId={trip.id} />
 
-            {/* Conditionally render the aside (right column) based on user role */}
             {userRole !== "Viewer" && (
               <aside className="bg-cyan-100 dark:bg-cyan-900 text-black dark:text-white p-6 mb-0 rounded-lg shadow-md flex flex-col h-full">
                 <h3 className="text-xl font-bold mb-4">Manage Trip</h3>
 
-                {/* Conditionally render buttons based on role */}
                 {(userRole === "Manager" || userRole === "Editor") && (
                   <>
                     <button
@@ -170,7 +158,6 @@ const TripPage = ({ deleteTrip }: TripPageProps) => {
                     >
                       Edit Trip
                     </button>
-                    {/* Manager only buttons */}
                     {userRole === "Manager" && (
                       <>
                         <button
@@ -193,13 +180,11 @@ const TripPage = ({ deleteTrip }: TripPageProps) => {
             )}
           </div>
 
-          {/* Trip Description */}
           <div className="bg-cyan-100 dark:bg-cyan-900 text-black dark:text-white p-6 rounded-lg shadow-md mt-6">
             <h3 className="text-cyan-700 dark:text-cyan-300 text-lg font-bold mb-6">Trip Description</h3>
             <p className="mb-4 text-gray-700 dark:text-gray-200">{trip.description}</p>
           </div>
 
-          {/* Activities */}
           <div className="bg-cyan-100 dark:bg-cyan-900 text-black dark:text-white p-6 rounded-lg shadow-md mt-6 max-h-[1000px] overflow-y-scroll">
             <h3 className="text-cyan-700 dark:text-cyan-300 text-xl font-bold mt-2 mb-2">Activities</h3>
             {activities.length > 0 ? (
@@ -222,7 +207,6 @@ const TripPage = ({ deleteTrip }: TripPageProps) => {
         </div>
       </section>
 
-      {/* User Search Modal for managing users */}
       {showModal && <UserSearchModal tripId={id} onClose={() => setShowModal(false)} />}
     </div>
   );

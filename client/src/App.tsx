@@ -23,8 +23,6 @@ import { ActivityCacheProvider } from './components/ActivityCacheContext';
 
 const App = () => {
   const userId = localStorage.getItem('userId');
-
-  // Example: addTrip function
   const addTrip = async (newTrip: {
     title: string;
     location: string;
@@ -41,7 +39,6 @@ const App = () => {
     });
   };
   
-  // Example: deleteTrip function
   const deleteTrip = async (id: string) => {
     await fetch(`/api/v1/trips/${id}?userId=${userId}`, {
       method: 'DELETE',
@@ -51,14 +48,11 @@ const App = () => {
   const router = createBrowserRouter(
     createRoutesFromElements(
       <>
-        {/* Public Routes */}
+
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<LogInPage />} />
         <Route path="/register" element={<RegisterPage />} />
-
-        {/* Routes under MainLayout */}
         <Route path="/" element={<MainLayout />}>
-          {/* Protected Routes */}
           <Route element={<PrivateRoute />}>
             <Route path="/home" element={<HomePage />} />
             <Route path="/trips" element={<TripsPage />} />
@@ -74,7 +68,6 @@ const App = () => {
             <Route path="/activities" element={<ActivitiesPage />} />
           </Route>
 
-          {/* Fallback Route */}
           <Route path="*" element={<NotFoundPage />} />
         </Route>
       </>
@@ -84,8 +77,6 @@ const App = () => {
   return (
     <ActivityCacheProvider>
       <RouterProvider router={router} />
-
-      {/* Toast Container for all your toast messages */}
       <ToastContainer 
         position="top-center" 
         autoClose={3000} 

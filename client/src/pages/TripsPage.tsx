@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom';
 
 const TripsPage = () => {
   return (
-    // Wrap the entire page in a container with Tailwind dark-mode classes.
     <div className="min-h-screen bg-white dark:bg-gray-900 text-black dark:text-white">
       <section className="px-4 py-6">
         <TripListings isHome={false} />

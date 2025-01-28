@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import activityImage from '../assets/images/activityimage.png';
-import SelectTripModal from './DescriptionModal';  // <-- Import the reusable modal
+import SelectTripModal from './DescriptionModal';  
 
 type Trip = {
   id: string;
@@ -19,13 +19,13 @@ interface TripActivityListingProps {
   onRemove?: (xid: string) => void; 
 }
 
-const MAX_LENGTH = 300; // or however many chars you want
+const MAX_LENGTH = 300; 
 
 const TripActivityListing: React.FC<TripActivityListingProps> = ({ activity, onRemove }) => {
   const [showDescriptionModal, setShowDescriptionModal] = useState(false);
   const userId = localStorage.getItem('userId');
 
-  // Fallback image if none is provided
+
   const imageUrl =
     activity.image_url &&
     activity.image_url.trim() !== '' &&
@@ -33,25 +33,24 @@ const TripActivityListing: React.FC<TripActivityListingProps> = ({ activity, onR
       ? activity.image_url
       : activityImage;
 
-  // Truncated or full text
   const truncatedDescription =
     activity.description.length > MAX_LENGTH
       ? activity.description.substring(0, MAX_LENGTH) + '...'
       : activity.description;
 
-  // ====== 1) "Remove from THIS trip" button ======
+
   const handleRemove = () => {
     if (onRemove) {
       onRemove(activity.xid);
     }
   };
 
-  // ====== 2) "Add to ANOTHER trip" logic ======
+
   const [showTripsModal, setShowTripsModal] = useState(false);
   const [trips, setTrips] = useState<Trip[]>([]);
   const [selectedTripId, setSelectedTripId] = useState<string>('');
 
-  // When the modal is opened, fetch the user’s trips
+
   useEffect(() => {
     if (showTripsModal) {
       if (!userId) {
@@ -66,7 +65,6 @@ const TripActivityListing: React.FC<TripActivityListingProps> = ({ activity, onR
             throw new Error('Failed to fetch trips');
           }
           const data = await res.json();
-          // Adjust shape if needed; often data is already an array of trips
           setTrips(data.map((item: any) => item.trip));
         } catch (error) {
           console.error(error);
@@ -78,7 +76,6 @@ const TripActivityListing: React.FC<TripActivityListingProps> = ({ activity, onR
     }
   }, [showTripsModal, userId]);
 
-  // Confirm adding this activity to the selected trip
   const handleConfirmAdd = async () => {
     if (!selectedTripId) {
       alert('Please select a trip!');
@@ -101,8 +98,6 @@ const TripActivityListing: React.FC<TripActivityListingProps> = ({ activity, onR
 
       alert('Activity added to another trip successfully!');
       setShowTripsModal(false);
-      // Optionally navigate to that trip:
-      // navigate(`/trips/${selectedTripId}`);
     } catch (error) {
       console.error(error);
       alert('Failed to add activity');
@@ -111,10 +106,6 @@ const TripActivityListing: React.FC<TripActivityListingProps> = ({ activity, onR
 
   return (
     <>
-      {/* 
-          Add dark-mode classes for background, text, and border 
-          so the card is not white in dark mode.
-      */}
       <div
         className="
           bg-white dark:bg-gray-800 
@@ -123,7 +114,6 @@ const TripActivityListing: React.FC<TripActivityListingProps> = ({ activity, onR
           rounded-xl shadow-md w-full h-52 flex
         "
       >
-        {/* LEFT: Large Image */}
         <div className="w-1/4 h-full">
           <img
             src={imageUrl}
@@ -132,17 +122,13 @@ const TripActivityListing: React.FC<TripActivityListingProps> = ({ activity, onR
           />
         </div>
 
-        {/* RIGHT: Title, Description, Modal, Remove */}
         <div className="w-3/4 flex flex-col p-4">
-          {/* Title */}
           <h2 className="text-xl font-semibold mb-2">{activity.name}</h2>
-
-          {/* Truncated Description */}
           <p className="text-gray-700 dark:text-gray-200 text-sm mb-2">
             {truncatedDescription}
           </p>
 
-          {/* “More” button to show full description */}
+
           {activity.description.length > MAX_LENGTH && (
             <button
               onClick={() => setShowDescriptionModal(true)}
@@ -152,7 +138,6 @@ const TripActivityListing: React.FC<TripActivityListingProps> = ({ activity, onR
             </button>
           )}
 
-          {/* Spacer/Push content to bottom -> the remove button at far right */}
           <div className="mt-auto flex justify-end">
             {onRemove && (
               <button
@@ -162,20 +147,11 @@ const TripActivityListing: React.FC<TripActivityListingProps> = ({ activity, onR
                 Remove
               </button>
             )}
-            {/* 
-            If you want an “Add to Another Trip” button:
-            <button
-              onClick={() => setShowTripsModal(true)}
-              className="ml-2 bg-cyan-700 hover:bg-cyan-600 text-white px-4 py-2 rounded text-sm"
-            >
-              Add to Another Trip
-            </button> 
-            */}
           </div>
         </div>
       </div>
 
-      {/* MODAL: FULL DESCRIPTION */}
+
       {showDescriptionModal && (
         <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
           <div
@@ -199,7 +175,7 @@ const TripActivityListing: React.FC<TripActivityListingProps> = ({ activity, onR
         </div>
       )}
 
-      {/* MODAL: SELECT TRIP */}
+
       <SelectTripModal
         isOpen={showTripsModal}
         trips={trips}

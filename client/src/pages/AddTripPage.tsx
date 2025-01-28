@@ -27,13 +27,13 @@ const AddTripPage: React.FC<AddTripPageProps> = ({ addTripSubmit }) => {
 
     const formatDate = (date: string | Date) => {
       const d = new Date(date);
-      return d.toISOString().split('T')[0]; // Extract YYYY-MM-DD
+      return d.toISOString().split('T')[0]; 
     };
 
     const userId = localStorage.getItem('userId');
     if (!userId) {
       toast.error('User not logged in.');
-      return; // Stop form submission if user isn't found
+      return; 
     }
 
     const newTrip = {
