@@ -18,7 +18,7 @@ export const AppDataSource = new DataSource({
   database: config.dbName,
   synchronize: false, // Set to 'true' to create tables, 'false' to skip creation
   logging: true,
-  entities: [User, Trip, TripActivities, TripUsers], // Add the User entity (and others like Trip, etc.)
+  entities: [User, Trip, TripActivities, TripUsers], 
   migrations: [],
   subscribers: [],
 });

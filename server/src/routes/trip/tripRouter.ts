@@ -28,11 +28,9 @@ tripRouter.get('/', asyncHandler(async (req: Request, res: Response) => {
     // Check if user has any permission for each trip
     const tripsWithPermission = [];
     for (const trip of trips) {
-      // Assuming that `getUserPermissionForTrip` checks user's permission for a specific trip
       const permission = await tripService.getUserPermissionForTrip(trip.id, user_id);
       
       if (permission) {
-        // User has some permission, add to the result
         tripsWithPermission.push({ trip, permission });
       }
     }
@@ -192,7 +190,7 @@ tripRouter.post('/search', asyncHandler(async (req: Request, res: Response) => {
 tripRouter.post('/:trip_id/add-activity', asyncHandler(async (req: Request, res: Response) => {
   const { trip_id } = req.params;  // Get trip_id from route params
   const { xid } = req.body; 
-  const user_id = req.query.userId as string;        // Expect a single xid string from the request body
+  const user_id = req.query.userId as string;
 
   // Check if xid is provided and is a valid string
   if (!xid || typeof xid !== 'string') {
@@ -250,7 +248,7 @@ tripRouter.get('/:trip_id/activities', asyncHandler(async (req: Request, res: Re
 // Define a route to remove activities from a trip by xid
 tripRouter.delete('/:trip_id/activities', asyncHandler(async (req: Request, res: Response) => {
   const { trip_id } = req.params;  // Get trip_id from route params
-  const { xid } = req.body;        // Expect xid string to be deleted
+  const { xid } = req.body;  
   const user_id = req.query.userId as string;
 
   // Check if xid is provided and is a valid string
@@ -326,7 +324,7 @@ tripRouter.post("/:trip_id/add-permission",asyncHandler(async (req: Request, res
 
 tripRouter.post('/:trip_id/change-permission', asyncHandler(async (req: Request, res: Response) => {
   const { trip_id } = req.params;
-  const { email, new_permission } = req.body; // user_email and new_permission are expected in the request body
+  const { email, new_permission } = req.body;
   const user_id = req.query.userId as string;
 
   if (!email || !new_permission || !user_id) {
@@ -363,7 +361,7 @@ tripRouter.post('/:trip_id/change-permission', asyncHandler(async (req: Request,
 
 tripRouter.delete('/:trip_id/delete-permission', asyncHandler(async (req: Request, res: Response) => {
   const { trip_id } = req.params;
-  const { email } = req.body; // user_email is expected in the request body
+  const { email } = req.body; 
   const user_id = req.query.userId as string;
 
   if (!email || !user_id) {
@@ -399,7 +397,7 @@ tripRouter.post(
   "/:trip_id/search-user",
   asyncHandler(async (req: Request, res: Response) => {
     const { trip_id } = req.params;
-    const { email } = req.body; // User email for search
+    const { email } = req.body; 
 
     if (!email || typeof email !== "string") {
       return res.status(400).json({
@@ -428,7 +426,7 @@ tripRouter.post(
         id: user.id,
         username: user.username,
         email: user.email,
-        permission: permissionLevel || null, // Include the permission level (or null if not found)
+        permission: permissionLevel || null, 
       };
 
       res.status(200).json({

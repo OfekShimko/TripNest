@@ -5,7 +5,7 @@ import express from 'express';
 import { tripRouter, userRouter } from './src/routes';
 
 import { router as opentripmapRoutes } from './src/routes/opentripmapRoutes'; 
-import { AppDataSource } from './src/db/database_init'; // Import DataSource
+import { AppDataSource } from './src/db/database_init';
 import cors from 'cors';
 import { config } from './config';
 
