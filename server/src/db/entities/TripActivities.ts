@@ -10,6 +10,6 @@ export class TripActivities {
   trip_id!: string;
 
   @ManyToOne(() => Trip, (trip) => trip.activities, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'trip_id' }) // Ensure the foreign key column is correctly named
+  @JoinColumn({ name: 'trip_id' }) 
   trip!: Trip;
 }
